@@ -1,0 +1,5 @@
+{
+  "name": "ExcelFile Operations",
+  "description": "A powerful Excel manipulation tool powered by Google Gemini. Upload, analyze, clean, and visualize your spreadsheets with AI assistance.",
+  "requestFramePermissions": []
+}
