@@ -1,10 +1,40 @@
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
+import { FileUpload } from './components/FileUpload';
 import { AppTab, UploadedFile } from './types';
+import { readExcelFile } from './utils/excelUtils';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.UPLOAD);
-  const [files] = useState<UploadedFile[]>([]);
+  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFilesSelect = async (filesToUpload: File[]) => {
+    setIsProcessing(true);
+    try {
+      const newUploadedFiles = await Promise.all(
+        filesToUpload.map(async (file) => {
+          const { data, columns } = await readExcelFile(file);
+          return {
+            id: crypto.randomUUID(),
+            name: file.name,
+            data,
+            columns
+          } as UploadedFile;
+        })
+      );
+      setFiles(prev => [...prev, ...newUploadedFiles]);
+    } catch (error) {
+      console.error("Error processing files", error);
+      alert("Error reading one or more files. Please ensure they are valid .xlsx, .xls, .csv, or .txt files.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRemoveFile = (id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+  };
 
   return (
     <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length}>
@@ -13,17 +43,12 @@ const App: React.FC = () => {
         <p className="text-gray-500 mt-1">Manage your uploaded spreadsheets and data files.</p>
       </div>
 
-      <div className="max-w-3xl mx-auto mt-10">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-2xl font-bold">+</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Data Files</h2>
-          <p className="text-gray-500">
-            Spreadsheet parsing is not wired up yet.
-          </p>
-        </div>
-      </div>
+      <FileUpload
+        files={files}
+        onFilesSelect={handleFilesSelect}
+        onRemoveFile={handleRemoveFile}
+        isLoading={isProcessing}
+      />
     </Layout>
   );
 };
