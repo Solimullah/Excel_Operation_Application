@@ -10,5 +10,8 @@ export interface UploadedFile {
 }
 
 export enum AppTab {
-  UPLOAD = 'UPLOAD'
+  UPLOAD = 'UPLOAD',
+  VIEW = 'VIEW'
 }
+
+export type ExportFormat = 'xlsx' | 'csv' | 'txt';

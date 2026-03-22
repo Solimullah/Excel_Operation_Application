@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { ExcelRow } from '../types';
+import { ExcelRow, ExportFormat } from '../types';
 
 export const readExcelFile = (file: File): Promise<{ data: ExcelRow[], columns: string[] }> => {
   return new Promise((resolve, reject) => {
@@ -32,4 +32,33 @@ export const readExcelFile = (file: File): Promise<{ data: ExcelRow[], columns: 
     };
     reader.onerror = (error) => reject(error);
   });
+};
+
+export const downloadExcelFile = (data: ExcelRow[], fileName: string, format: ExportFormat = 'xlsx') => {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+  
+  let bookType: XLSX.BookType = 'xlsx';
+  let extension = 'xlsx';
+
+  switch (format) {
+    case 'csv':
+      bookType = 'csv';
+      extension = 'csv';
+      break;
+    case 'txt':
+      bookType = 'txt'; // Tab separated
+      extension = 'txt';
+      break;
+    default:
+      bookType = 'xlsx';
+      extension = 'xlsx';
+  }
+
+  // Ensure filename has correct extension
+  const cleanName = fileName.substring(0, fileName.lastIndexOf('.')) || fileName;
+  const finalFileName = `${cleanName}.${extension}`;
+
+  XLSX.writeFile(wb, finalFileName, { bookType });
 };
