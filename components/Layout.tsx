@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { AppTab } from '../types';
-import { FileSpreadsheet, Upload } from 'lucide-react';
+import { FileSpreadsheet, Upload, Eraser } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -56,6 +56,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           <div className="pt-4 pb-2">
             <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Workspace</p>
           </div>
+          <NavItem
+            tab={AppTab.CLEANING}
+            active={activeTab === AppTab.CLEANING}
+            icon={Eraser}
+            label="Operations"
+            onClick={onTabChange}
+          />
           <NavItem
             tab={AppTab.VIEW}
             active={activeTab === AppTab.VIEW}

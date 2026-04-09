@@ -11,7 +11,14 @@ export interface UploadedFile {
 
 export enum AppTab {
   UPLOAD = 'UPLOAD',
-  VIEW = 'VIEW'
+  VIEW = 'VIEW',
+  CLEANING = 'CLEANING'
+}
+
+export interface CleaningAction {
+  type: 'remove_duplicates' | 'remove_empty' | 'uppercase' | 'lowercase' | 'trim' | 'add_prefix' | 'remove_prefix' | 'extract_column' | 'apply_formula';
+  column?: string;
+  value?: string;
 }
 
 export type ExportFormat = 'xlsx' | 'csv' | 'txt';

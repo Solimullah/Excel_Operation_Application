@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { FileUpload } from './components/FileUpload';
 import { DataView } from './components/DataView';
-import { AppTab, UploadedFile, ExportFormat } from './types';
+import { CleaningPanel } from './components/CleaningPanel';
+import { AppTab, UploadedFile, ExcelRow, ExportFormat } from './types';
 import { readExcelFile, downloadExcelFile } from './utils/excelUtils';
 
 const App: React.FC = () => {
@@ -35,6 +36,19 @@ const App: React.FC = () => {
 
   const handleRemoveFile = (id: string) => {
     setFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const handleFileUpdate = (fileId: string, newData: ExcelRow[]) => {
+    setFiles(prev => prev.map(f => {
+        if (f.id === fileId) {
+            return {
+                ...f,
+                data: newData,
+                columns: newData.length > 0 ? Object.keys(newData[0]) : []
+            };
+        }
+        return f;
+    }));
   };
 
   const handleDownload = (fileId: string, format: ExportFormat) => {
@@ -76,6 +90,11 @@ const App: React.FC = () => {
 
     return (
       <>
+        {/* Persistent Cleaning Panel: kept mounted but hidden when inactive to preserve state */}
+        <div className={activeTab === AppTab.CLEANING ? 'block' : 'hidden'}>
+          <CleaningPanel files={files} onUpdateFile={handleFileUpdate} />
+        </div>
+
         {activeTab === AppTab.VIEW && <DataView files={files} onDownload={handleDownload} />}
       </>
     );
@@ -85,10 +104,13 @@ const App: React.FC = () => {
     <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
-            {activeTab === AppTab.UPLOAD ? 'File Manager' : 'Data Overview'}
+            {activeTab === AppTab.UPLOAD ? 'File Manager' :
+             activeTab === AppTab.CLEANING ? 'Operations & Cleaning' :
+             'Data Overview'}
         </h1>
         <p className="text-gray-500 mt-1">
             {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
+             activeTab === AppTab.CLEANING ? 'Clean, modify, and extract data.' :
              'View and export your data.'}
         </p>
       </div>
