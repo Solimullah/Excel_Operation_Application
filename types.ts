@@ -12,7 +12,8 @@ export interface UploadedFile {
 export enum AppTab {
   UPLOAD = 'UPLOAD',
   VIEW = 'VIEW',
-  CLEANING = 'CLEANING'
+  CLEANING = 'CLEANING',
+  COMPARE = 'COMPARE'
 }
 
 export interface CleaningAction {

@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { AppTab } from '../types';
-import { FileSpreadsheet, Upload, Eraser } from 'lucide-react';
+import { FileSpreadsheet, Upload, Eraser, GitCompare } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -68,6 +68,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             active={activeTab === AppTab.VIEW}
             icon={FileSpreadsheet}
             label="Data View"
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.COMPARE}
+            active={activeTab === AppTab.COMPARE}
+            icon={GitCompare}
+            label="Compare Files"
             onClick={onTabChange}
           />
         </div>
