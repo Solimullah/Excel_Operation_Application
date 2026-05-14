@@ -4,6 +4,7 @@ import { FileUpload } from './components/FileUpload';
 import { DataView } from './components/DataView';
 import { CleaningPanel } from './components/CleaningPanel';
 import { ComparePanel } from './components/ComparePanel';
+import { MergePanel } from './components/MergePanel';
 import { AppTab, UploadedFile, ExcelRow, ExportFormat } from './types';
 import { readExcelFile, downloadExcelFile } from './utils/excelUtils';
 
@@ -98,6 +99,7 @@ const App: React.FC = () => {
 
         {activeTab === AppTab.VIEW && <DataView files={files} onDownload={handleDownload} />}
         {activeTab === AppTab.COMPARE && <ComparePanel files={files} />}
+        {activeTab === AppTab.MERGE && <MergePanel files={files} />}
       </>
     );
   };
@@ -107,12 +109,14 @@ const App: React.FC = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
             {activeTab === AppTab.UPLOAD ? 'File Manager' :
+             activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
              activeTab === AppTab.CLEANING ? 'Operations & Cleaning' :
              'Data Overview'}
         </h1>
         <p className="text-gray-500 mt-1">
             {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
+             activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :
              activeTab === AppTab.CLEANING ? 'Clean, modify, and extract data.' :
              'View and export your data.'}

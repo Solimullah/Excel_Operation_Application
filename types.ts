@@ -13,7 +13,8 @@ export enum AppTab {
   UPLOAD = 'UPLOAD',
   VIEW = 'VIEW',
   CLEANING = 'CLEANING',
-  COMPARE = 'COMPARE'
+  COMPARE = 'COMPARE',
+  MERGE = 'MERGE'
 }
 
 export interface CleaningAction {
