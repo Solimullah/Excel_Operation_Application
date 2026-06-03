@@ -14,7 +14,8 @@ export enum AppTab {
   VIEW = 'VIEW',
   CLEANING = 'CLEANING',
   COMPARE = 'COMPARE',
-  MERGE = 'MERGE'
+  MERGE = 'MERGE',
+  VLOOKUP = 'VLOOKUP'
 }
 
 export interface CleaningAction {

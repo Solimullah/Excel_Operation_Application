@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { AppTab } from '../types';
-import { FileSpreadsheet, Upload, Eraser, GitCompare, Combine } from 'lucide-react';
+import { FileSpreadsheet, Upload, Eraser, GitCompare, Combine, Search } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -82,6 +82,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             active={activeTab === AppTab.MERGE}
             icon={Combine}
             label="Merge / Split"
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.VLOOKUP}
+            active={activeTab === AppTab.VLOOKUP}
+            icon={Search}
+            label="VLOOKUP AI"
             onClick={onTabChange}
           />
         </div>
