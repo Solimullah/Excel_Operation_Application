@@ -9,13 +9,21 @@ export interface UploadedFile {
   columns: string[];
 }
 
+export interface ChartConfig {
+  xAxis: string;
+  yAxis: string;
+  type: 'bar' | 'line' | 'scatter' | 'pie';
+}
+
 export enum AppTab {
   UPLOAD = 'UPLOAD',
   VIEW = 'VIEW',
   CLEANING = 'CLEANING',
   COMPARE = 'COMPARE',
   MERGE = 'MERGE',
-  VLOOKUP = 'VLOOKUP'
+  VLOOKUP = 'VLOOKUP',
+  ANALYSIS = 'ANALYSIS',
+  VISUALIZE = 'VISUALIZE'
 }
 
 export interface CleaningAction {

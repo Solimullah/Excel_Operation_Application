@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { AppTab } from '../types';
-import { FileSpreadsheet, Upload, Eraser, GitCompare, Combine, Search } from 'lucide-react';
+import { FileSpreadsheet, Upload, Eraser, GitCompare, Combine, Search, Sparkles, BarChart } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -89,6 +89,20 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             active={activeTab === AppTab.VLOOKUP}
             icon={Search}
             label="VLOOKUP AI"
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.ANALYSIS}
+            active={activeTab === AppTab.ANALYSIS}
+            icon={Sparkles}
+            label="Smart Insights"
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.VISUALIZE}
+            active={activeTab === AppTab.VISUALIZE}
+            icon={BarChart}
+            label="Visualizations"
             onClick={onTabChange}
           />
         </div>

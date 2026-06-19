@@ -6,6 +6,8 @@ import { CleaningPanel } from './components/CleaningPanel';
 import { ComparePanel } from './components/ComparePanel';
 import { MergePanel } from './components/MergePanel';
 import { VlookupPanel } from './components/VlookupPanel';
+import { AnalysisPanel } from './components/AnalysisPanel';
+import { ChartPanel } from './components/ChartPanel';
 import { AppTab, UploadedFile, ExcelRow, ExportFormat } from './types';
 import { readExcelFile, downloadExcelFile } from './utils/excelUtils';
 
@@ -102,6 +104,8 @@ const App: React.FC = () => {
         {activeTab === AppTab.COMPARE && <ComparePanel files={files} />}
         {activeTab === AppTab.MERGE && <MergePanel files={files} />}
         {activeTab === AppTab.VLOOKUP && <VlookupPanel files={files} onUpdateFile={handleFileUpdate} />}
+        {activeTab === AppTab.ANALYSIS && <AnalysisPanel files={files} />}
+        {activeTab === AppTab.VISUALIZE && <ChartPanel files={files} />}
       </>
     );
   };
@@ -111,6 +115,8 @@ const App: React.FC = () => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
             {activeTab === AppTab.UPLOAD ? 'File Manager' :
+             activeTab === AppTab.VISUALIZE ? 'Visualization' :
+             activeTab === AppTab.ANALYSIS ? 'Data Profiler' :
              activeTab === AppTab.VLOOKUP ? 'VLOOKUP Tool' :
              activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
@@ -119,6 +125,8 @@ const App: React.FC = () => {
         </h1>
         <p className="text-gray-500 mt-1">
             {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
+             activeTab === AppTab.VISUALIZE ? 'Create charts to visualize trends.' :
+             activeTab === AppTab.ANALYSIS ? 'Generate instant statistical profiles for your data locally.' :
              activeTab === AppTab.VLOOKUP ? 'Perform VLOOKUP operations between two files.' :
              activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :
