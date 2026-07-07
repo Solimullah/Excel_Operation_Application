@@ -18,11 +18,12 @@ export interface ChartConfig {
 export enum AppTab {
   UPLOAD = 'UPLOAD',
   VIEW = 'VIEW',
+  ANALYSIS = 'ANALYSIS',
   CLEANING = 'CLEANING',
   COMPARE = 'COMPARE',
   MERGE = 'MERGE',
   VLOOKUP = 'VLOOKUP',
-  ANALYSIS = 'ANALYSIS',
+  FORMULA = 'FORMULA',
   VISUALIZE = 'VISUALIZE'
 }
 

@@ -2,19 +2,26 @@ import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { FileUpload } from './components/FileUpload';
 import { DataView } from './components/DataView';
+import { AnalysisPanel } from './components/AnalysisPanel';
 import { CleaningPanel } from './components/CleaningPanel';
+import { FormulaPanel } from './components/FormulaPanel';
+import { ChartPanel } from './components/ChartPanel';
 import { ComparePanel } from './components/ComparePanel';
 import { MergePanel } from './components/MergePanel';
 import { VlookupPanel } from './components/VlookupPanel';
-import { AnalysisPanel } from './components/AnalysisPanel';
-import { ChartPanel } from './components/ChartPanel';
-import { AppTab, UploadedFile, ExcelRow, ExportFormat } from './types';
+import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction } from './types';
 import { readExcelFile, downloadExcelFile } from './utils/excelUtils';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.UPLOAD);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Bridge State: Passing actions from Formula AI to Operations
+  const [pendingCleaningAction, setPendingCleaningAction] = useState<{
+    fileId: string;
+    action: CleaningAction;
+  } | null>(null);
 
   const handleFilesSelect = async (filesToUpload: File[]) => {
     setIsProcessing(true);
@@ -59,22 +66,39 @@ const App: React.FC = () => {
   const handleDownload = (fileId: string, format: ExportFormat) => {
     const file = files.find(f => f.id === fileId);
     if (!file) return;
-
+    
     // Create new name preserving original name but changing extension and adding modifier
     const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
     const newName = `${originalName}_modified.${format}`;
-
+    
     downloadExcelFile(file.data, newName, format);
+  };
+
+  // Bridge Function
+  const handleAddToPipeline = (fileId: string, formula: string, targetColumn: string) => {
+    setPendingCleaningAction({
+      fileId,
+      action: {
+        type: 'apply_formula',
+        column: targetColumn,
+        value: formula
+      }
+    });
+    setActiveTab(AppTab.CLEANING);
+  };
+
+  const clearPendingAction = () => {
+    setPendingCleaningAction(null);
   };
 
   const renderContent = () => {
     if (activeTab === AppTab.UPLOAD) {
       return (
-        <FileUpload
-            files={files}
-            onFilesSelect={handleFilesSelect}
-            onRemoveFile={handleRemoveFile}
-            isLoading={isProcessing}
+        <FileUpload 
+            files={files} 
+            onFilesSelect={handleFilesSelect} 
+            onRemoveFile={handleRemoveFile} 
+            isLoading={isProcessing} 
         />
       );
     }
@@ -83,7 +107,7 @@ const App: React.FC = () => {
        return (
          <div className="text-center py-20">
            <p className="text-gray-500 mb-4">No files uploaded yet.</p>
-           <button
+           <button 
              onClick={() => setActiveTab(AppTab.UPLOAD)}
              className="text-indigo-600 hover:text-indigo-800 font-medium"
            >
@@ -97,14 +121,21 @@ const App: React.FC = () => {
       <>
         {/* Persistent Cleaning Panel: kept mounted but hidden when inactive to preserve state */}
         <div className={activeTab === AppTab.CLEANING ? 'block' : 'hidden'}>
-          <CleaningPanel files={files} onUpdateFile={handleFileUpdate} />
+          <CleaningPanel 
+            files={files} 
+            onUpdateFile={handleFileUpdate} 
+            incomingAction={pendingCleaningAction}
+            onActionHandled={clearPendingAction}
+          />
         </div>
 
+        {/* Other workspace tabs */}
         {activeTab === AppTab.VIEW && <DataView files={files} onDownload={handleDownload} />}
         {activeTab === AppTab.COMPARE && <ComparePanel files={files} />}
         {activeTab === AppTab.MERGE && <MergePanel files={files} />}
         {activeTab === AppTab.VLOOKUP && <VlookupPanel files={files} onUpdateFile={handleFileUpdate} />}
         {activeTab === AppTab.ANALYSIS && <AnalysisPanel files={files} />}
+        {activeTab === AppTab.FORMULA && <FormulaPanel files={files} onAddToPipeline={handleAddToPipeline} />}
         {activeTab === AppTab.VISUALIZE && <ChartPanel files={files} />}
       </>
     );
@@ -114,24 +145,26 @@ const App: React.FC = () => {
     <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">
-            {activeTab === AppTab.UPLOAD ? 'File Manager' :
-             activeTab === AppTab.VISUALIZE ? 'Visualization' :
-             activeTab === AppTab.ANALYSIS ? 'Data Profiler' :
-             activeTab === AppTab.VLOOKUP ? 'VLOOKUP Tool' :
-             activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
+            {activeTab === AppTab.UPLOAD ? 'File Manager' : 
+             activeTab === AppTab.VIEW ? 'Data Overview' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
+             activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
+             activeTab === AppTab.VLOOKUP ? 'VLOOKUP Tool' :
+             activeTab === AppTab.ANALYSIS ? 'Data Profiler' :
              activeTab === AppTab.CLEANING ? 'Operations & Cleaning' :
-             'Data Overview'}
+             activeTab === AppTab.FORMULA ? 'Formula Builder' :
+             'Visualization'}
         </h1>
         <p className="text-gray-500 mt-1">
             {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
-             activeTab === AppTab.VISUALIZE ? 'Create charts to visualize trends.' :
-             activeTab === AppTab.ANALYSIS ? 'Generate instant statistical profiles for your data locally.' :
-             activeTab === AppTab.VLOOKUP ? 'Perform VLOOKUP operations between two files.' :
-             activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :
+             activeTab === AppTab.VIEW ? 'View and export your data.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :
+             activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :
+             activeTab === AppTab.VLOOKUP ? 'Perform VLOOKUP operations between two files.' :
+             activeTab === AppTab.ANALYSIS ? 'Generate instant statistical profiles for your data locally.' :
              activeTab === AppTab.CLEANING ? 'Clean, modify, and extract data.' :
-             'View and export your data.'}
+             activeTab === AppTab.FORMULA ? 'Use templates to build complex custom formulas.' :
+             'Create charts to visualize trends.'}
         </p>
       </div>
       {renderContent()}
