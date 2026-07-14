@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["src", "tests", "vitest.config.ts", "App.tsx", "components", "utils", "types.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "node-v20.11.1-win-x64"]
+}

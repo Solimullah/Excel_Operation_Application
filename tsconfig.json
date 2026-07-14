@@ -1,29 +1,58 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+
+    "allowJs": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "allowJs": true,
-    "jsx": "react-jsx",
+
+    "types": ["node", "vite/client"],
+
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./src/*"]
     },
-    "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+
+    // --- Strictness -------------------------------------------------------
+    // `strict` is currently OFF. Turning it on surfaces a real backlog in the
+    // existing panels, so it is a deliberate, separate piece of work rather
+    // than a side effect of another change (context/coding-conventions.md).
+    //
+    // The flags below are the ones that already pass, so they are locked in to
+    // stop the baseline sliding backwards. Enable the rest one at a time:
+    //   "strict": true,
+    //   "strictNullChecks": true,
+    //   "noImplicitAny": true,
+    "strict": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": false
+  },
+
+  "include": ["src", "App.tsx", "index.tsx", "types.ts", "components", "utils"],
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "node-v20.11.1-win-x64",
+    "migrated_prompt_history",
+    // Typechecked by tsconfig.test.json instead, which requires the dev
+    // dependencies from the README's "Restructure" step to be installed.
+    "tests",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

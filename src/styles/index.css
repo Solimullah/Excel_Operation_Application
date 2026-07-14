@@ -1,0 +1,68 @@
+/*
+ * Base stylesheet.
+ *
+ * Tailwind is currently loaded from cdn.tailwindcss.com via a <script> tag in
+ * index.html, so there is no build step, no tailwind.config.js and no @tailwind
+ * directives here. Only stock Tailwind utilities work in JSX; a class you invent
+ * will silently do nothing.
+ *
+ * When Tailwind moves into the build (which it should, before any brand-palette
+ * work — see context/project-memory.md §4), this file becomes:
+ *
+ *   @tailwind base;
+ *   @tailwind components;
+ *   @tailwind utilities;
+ *
+ * and the CDN <script> comes out of index.html.
+ */
+
+:root {
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+/*
+ * Tabular figures wherever digits are meant to line up — row counts, statistics,
+ * min/max values. Applied via the `tabular-nums` utility in JSX.
+ */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keep a visible focus ring for keyboard users without showing it on click. */
+:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
