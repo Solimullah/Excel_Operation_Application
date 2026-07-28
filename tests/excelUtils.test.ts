@@ -11,8 +11,7 @@ import { readExcelFile } from '../utils/excelUtils';
  * the round trip. `defval: ""` keeps every row keyed identically.
  */
 
-const asFile = (csv: string, name = 'test.csv') =>
-  new File([csv], name, { type: 'text/csv' });
+const asFile = (csv: string, name = 'test.csv') => new File([csv], name, { type: 'text/csv' });
 
 describe('readExcelFile', () => {
   it('preserves a leading + on phone numbers instead of coercing to a number', async () => {

@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.github
+.env
+.env.*
+!.env.example
+node.zip
+node-v20.11.1-win-x64
+migrated_prompt_history
+context
+*.log
+.DS_Store

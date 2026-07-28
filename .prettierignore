@@ -6,3 +6,14 @@ package-lock.json
 migrated_prompt_history
 context/_archive-mailpulse
 *.md
+
+# Legacy sources predating Prettier. Formatting these would rewrite every
+# working component to introduce tooling, so they are exempt for now.
+# Remove a line here as each area is reformatted deliberately.
+App.tsx
+types.ts
+index.tsx
+index.html
+metadata.json
+components/
+utils/

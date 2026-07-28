@@ -34,3 +34,11 @@ node-v20.11.1-win-x64/
 
 # Local working documentation
 context/
+
+# Test coverage output
+coverage
+
+# TEMPORARY: pushing .github/workflows/ requires a token with the `workflow`
+# scope. The file exists locally and is ready to go - delete these two lines
+# and `git add .github/` once the token is updated.
+.github/
