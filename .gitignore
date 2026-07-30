@@ -32,8 +32,10 @@ dist-ssr
 node.zip
 node-v20.11.1-win-x64/
 
-# Local working documentation
-context/
+# Working documentation is tracked, EXCEPT the personal notes:
+# project-memory.md records working preferences and verbatim quotes and
+# stays on this machine only.
+context/project-memory.md
 
 # Test coverage output
 coverage
