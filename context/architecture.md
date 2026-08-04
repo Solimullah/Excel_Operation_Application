@@ -12,12 +12,12 @@ is read, transformed and written inside the browser tab.
 
 ```
 Browser tab
-  ├── index.html          Vite host page: Tailwind CDN + ESM importmap
-  ├── index.tsx           createRoot → StrictMode → App
-  └── App.tsx             The only shell: owns all state, switches tabs
-        └── Layout.tsx    Fixed sidebar nav + main content area
-              └── one panel component per tab
-                    └── utils/excelUtils.ts  ──►  SheetJS (xlsx)
+  ├── index.html               Vite host page: Tailwind CDN + ESM importmap
+  ├── src/main.tsx             createRoot → StrictMode → App
+  └── src/app/App.tsx          The only shell: owns all state, switches tabs
+        └── components/layout/Layout.tsx   Sidebar nav + main content
+              └── features/<name>/components/  one panel per tab
+                    └── src/lib/excel  ──►  SheetJS (xlsx)
                                                    ↕
                                             File input / file download
 ```
@@ -63,33 +63,50 @@ Harmless, but it means there is no stylesheet layer at all.
 | File | Role |
 |---|---|
 | `index.html` | Host page, mounts `#root`, loads Tailwind CDN and the importmap |
-| `index.tsx` | `createRoot` → `React.StrictMode` → `App`. Throws if `#root` is missing. |
-| `App.tsx` | The one shell: owns every piece of application state, renders the active tab |
-| `components/Layout.tsx` | Fixed 16rem sidebar, nav items, file count, main scroll container |
+| `src/main.tsx` | `createRoot` → `React.StrictMode` → `App`. Throws if `#root` is missing. |
+| `src/app/App.tsx` | The one shell: owns every piece of application state, renders the active tab |
+| `src/components/layout/Layout.tsx` | Fixed 16rem sidebar, nav items, file count, main scroll container |
 
 There is exactly one shell and one entry point. Do not add a second.
 
 ## Project layout
 
-The repository is **flat — there is no `src/` directory.**
+The application lives under `src/`, organised **by feature rather than by file type**.
 
 ```
-index.html              Host page
-index.tsx               Entry
-App.tsx                 The one shell
-types.ts                All shared types
-components/             12 React components (PascalCase.tsx)
-utils/excelUtils.ts     The only non-component module — SheetJS read/write
-context/                These documents
+src/
+├── main.tsx               Entry: createRoot -> StrictMode -> App
+├── vite-env.d.ts          Typed import.meta.env
+├── app/                   The shell: App.tsx, ErrorBoundary.tsx
+├── components/
+│   ├── layout/            Layout
+│   └── ui/                Button, ExportMenu - shared by 2+ features
+├── features/              One folder per workspace, self-contained
+│   ├── files/  data-view/  cleaning/  compare/  merge-split/
+│   └── vlookup/  profiler/  formula/  charts/
+├── lib/
+│   ├── excel/             The ONLY module that imports xlsx
+│   ├── logger.ts  errors.ts
+├── config/                env.ts, constants.ts
+├── types/                 Shared types
+└── styles/                index.css
 ```
 
-`tsconfig.json` declares an `@/*` path alias mapping to `./*`, and `vite.config.ts` mirrors
-it. **Neither is used** — every import in the codebase is relative.
+Each feature owns its own components, and gains `hooks/` and `lib/` subfolders as logic is
+extracted. **Features must not import from one another** — ESLint enforces this. When two
+features need the same thing, it moves up into `lib/`, `components/` or `types/`.
+
+Tests are co-located as `thing.test.ts` beside the code. Only the cross-cutting harness
+(`setup.ts`, `fixtures.ts`) lives in the top-level `tests/`.
+
+`@/*` maps to `./src/*` in both `tsconfig.json` and `vite.config.ts`, and **every
+cross-directory import uses it**. Relative imports are reserved for siblings within the
+same folder.
 
 ## Navigation
 
 `App.tsx` holds `activeTab: AppTab` and renders one panel per value. `AppTab` is an enum in
-`types.ts` with nine members; `Layout.tsx` renders a `NavItem` for each.
+`src/types/index.ts` with nine members; `Layout.tsx` renders a `NavItem` for each.
 
 | `AppTab` | Sidebar label | Page heading | Component |
 |---|---|---|---|
@@ -133,7 +150,7 @@ state into `App.tsx`.
 
 ## Data model
 
-Three types in `types.ts` carry everything:
+Three types in `src/types/index.ts` carry everything:
 
 ```ts
 ExcelRow      = { [key: string]: any }          // one row, keyed by column name
@@ -146,7 +163,7 @@ again in `App.handleFileUpdate`. Everything that renders or exports a table iter
 `columns`, so a key present on row 5 but absent on row 0 is invisible everywhere. See
 `system-rules.md` §2.
 
-`ChartConfig` and `CleaningAction` are also in `types.ts`. `ChartConfig` is **declared but
+`ChartConfig` and `CleaningAction` are also in `src/types/`. `ChartConfig` is **declared but
 never imported** — `ChartPanel` holds the same fields as three separate `useState` calls,
 and its `type` union includes `'scatter'`, which `ChartPanel` cannot render.
 
@@ -193,7 +210,7 @@ is permanently mounted.
 
 ## The I/O boundary
 
-`utils/excelUtils.ts` is the only module that touches SheetJS, and the only place data
+`src/lib/excel/index.ts` is the only module that touches SheetJS, and the only place data
 enters or leaves the browser. Two functions:
 
 **`readExcelFile(file)`** — `FileReader.readAsArrayBuffer` → `XLSX.read(type: 'array')` →

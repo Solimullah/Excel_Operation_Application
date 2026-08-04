@@ -1,4 +1,4 @@
-import type { ExcelRow, UploadedFile } from '../types';
+import type { ExcelRow, UploadedFile } from '@/types';
 
 /**
  * Shared test data.

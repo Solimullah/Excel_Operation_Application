@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Layout } from './components/Layout';
-import { FileUpload } from './components/FileUpload';
-import { DataView } from './components/DataView';
-import { AnalysisPanel } from './components/AnalysisPanel';
-import { CleaningPanel } from './components/CleaningPanel';
-import { FormulaPanel } from './components/FormulaPanel';
-import { ChartPanel } from './components/ChartPanel';
-import { ComparePanel } from './components/ComparePanel';
-import { MergePanel } from './components/MergePanel';
-import { VlookupPanel } from './components/VlookupPanel';
-import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction } from './types';
-import { readExcelFile, downloadExcelFile } from './utils/excelUtils';
+import { Layout } from '@/components/layout/Layout';
+import { FileUpload } from '@/features/files/components/FileUpload';
+import { DataView } from '@/features/data-view/components/DataView';
+import { AnalysisPanel } from '@/features/profiler/components/AnalysisPanel';
+import { CleaningPanel } from '@/features/cleaning/components/CleaningPanel';
+import { FormulaPanel } from '@/features/formula/components/FormulaPanel';
+import { ChartPanel } from '@/features/charts/components/ChartPanel';
+import { ComparePanel } from '@/features/compare/components/ComparePanel';
+import { MergePanel } from '@/features/merge-split/components/MergePanel';
+import { VlookupPanel } from '@/features/vlookup/components/VlookupPanel';
+import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction } from '@/types';
+import { readExcelFile, downloadExcelFile } from '@/lib/excel';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.UPLOAD);

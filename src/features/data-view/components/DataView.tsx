@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile, ExportFormat } from '../types';
+import { UploadedFile, ExportFormat } from '@/types';
 import { ChevronDown } from 'lucide-react';
-import { ExportMenu } from './ExportMenu';
+import { ExportMenu } from '@/components/ui/ExportMenu';
 
 interface DataViewProps {
   files: UploadedFile[];

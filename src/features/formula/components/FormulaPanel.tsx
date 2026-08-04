@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile } from '../types';
-import { Button } from './Button';
+import { UploadedFile } from '@/types';
+import { Button } from '@/components/ui/Button';
 import { Copy, Check, Calculator, ChevronDown, ArrowRightCircle } from 'lucide-react';
 
 interface FormulaPanelProps {

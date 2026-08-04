@@ -128,12 +128,12 @@ abstraction or pattern, check whether one already covers the case:
 
 | If you want to… | Use the existing… |
 |---|---|
-| Read a spreadsheet | `readExcelFile` in `utils/excelUtils.ts` — never call `XLSX.read` directly |
-| Write any file out | `downloadExcelFile` in `utils/excelUtils.ts` |
+| Read a spreadsheet | `readExcelFile` in `src/lib/excel/index.ts` — never call `XLSX.read` directly |
+| Write any file out | `downloadExcelFile` in `src/lib/excel/index.ts` |
 | Offer a download UI | `ExportMenu`, which calls back with an `ExportFormat` |
-| Add a button | `Button` from `components/Button.tsx` — variants, sizes, `isLoading` |
+| Add a button | `Button` from `@/components/ui/Button` — variants, sizes, `isLoading` |
 | Add a row/column transform | a `case` in `processData`, plus the member on `CleaningAction['type']` |
-| Add a tab | the `AppTab` enum, a `NavItem` in `Layout.tsx`, **and both ternary chains** in `App.tsx` |
+| Add a tab | the `AppTab` enum, a `NavItem` in `Layout.tsx`, **and both ternary chains** in `App.tsx`, plus a new `src/features/<name>/` folder |
 | Pick a file in a panel | the `selectedFileId` + self-healing `useEffect` idiom used by every panel |
 | Show an empty state | the early-return centred card with a `lucide-react` icon |
 | Generate an ID | `crypto.randomUUID()` |

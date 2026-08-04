@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { ExcelRow, ExportFormat } from '../types';
+import { ExcelRow, ExportFormat } from '@/types';
 
 export const readExcelFile = (file: File): Promise<{ data: ExcelRow[], columns: string[] }> => {
   return new Promise((resolve, reject) => {

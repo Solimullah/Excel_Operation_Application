@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { readExcelFile } from '../utils/excelUtils';
+import { readExcelFile } from './index';
 
 /**
  * These cover the value-fidelity contract in the reader, which is the single

@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { UploadCloud, FileSpreadsheet, Trash2, Plus, FileText } from 'lucide-react';
-import { UploadedFile } from '../types';
-import { Button } from './Button';
+import { UploadedFile } from '@/types';
+import { Button } from '@/components/ui/Button';
 
 interface FileUploadProps {
   files: UploadedFile[];

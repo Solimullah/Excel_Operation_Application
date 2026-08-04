@@ -32,17 +32,32 @@ line numbers.
 
 ## Project layout
 
-The repository is flat. **There is no `src/`.**
+The application lives under `src/`, grouped by feature.
 
 ```
-index.html              Host page: Tailwind CDN + importmap
-index.tsx               Entry: createRoot → StrictMode → App
-App.tsx                 The one shell: all state, tab switching
-types.ts                All shared types
-components/             PascalCase.tsx — one per tab, plus Layout/Button/ExportMenu
-utils/excelUtils.ts     camelCase.ts — the only non-component module
+src/main.tsx            Entry: createRoot -> StrictMode -> App
+src/app/                The one shell: App.tsx, ErrorBoundary.tsx
+src/components/ui/      Shared primitives (PascalCase.tsx)
+src/components/layout/  Layout
+src/features/<name>/    One folder per workspace
+      components/         PascalCase.tsx
+      lib/                pure logic, camelCase.ts, tested beside itself
+      hooks/              useThing.ts
+src/lib/                Framework-free shared logic (camelCase.ts)
+src/config/             env.ts, constants.ts
+src/types/              Shared types
+src/styles/             index.css
+tests/                  Cross-cutting harness only: setup.ts, fixtures.ts
 context/                These documents
 ```
+
+**Where does new code go?** Used by one feature — inside that feature. Used by two or more
+— up into `src/lib`, `src/components/ui` or `src/types`. **Features must never import from
+each other**; ESLint fails the build if they do.
+
+**Pure logic belongs in a `.ts` file, not a `.tsx` component**, so it can be tested without
+a DOM. `processData` in `CleaningPanel` and the merge/split logic in `MergePanel` are the
+standing examples of logic that should be extracted into `features/<name>/lib/`.
 
 There is **one** top-level shell and one entry point. Do not add a second.
 
@@ -210,8 +225,10 @@ format dropdown and calls back with an `ExportFormat`.
 
 ## Imports
 
-- **Relative paths only.** The `@/*` alias exists in both `tsconfig.json` and
-  `vite.config.ts` and is used nowhere. Do not start using it.
+- **Use the `@/` alias for anything outside your own folder** — `@/types`,
+  `@/lib/excel`, `@/components/ui/Button`. It maps to `./src/*`. Relative imports are for
+  siblings in the same directory only; `../../` chains are a smell that something belongs
+  further up.
 - Import order in practice: React first, then types from `../types`, then components, then
   `lucide-react` icons, then utils. Not enforced, but consistent.
 - Import icons individually from `lucide-react` — never a namespace import.

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { UploadedFile, ExportFormat } from '../types';
-import { Button } from './Button';
+import { UploadedFile, ExportFormat } from '@/types';
+import { Button } from '@/components/ui/Button';
 import { GitCompare, ArrowRightLeft, AlertCircle } from 'lucide-react';
-import { downloadExcelFile } from '../utils/excelUtils';
-import { ExportMenu } from './ExportMenu';
+import { downloadExcelFile } from '@/lib/excel';
+import { ExportMenu } from '@/components/ui/ExportMenu';
 
 interface ComparePanelProps {
   files: UploadedFile[];

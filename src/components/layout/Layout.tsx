@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { AppTab } from '../types';
+import { AppTab } from '@/types';
 import { 
   FileSpreadsheet, 
   Search, 

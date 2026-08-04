@@ -216,7 +216,7 @@ downloaded.
 
 ---
 
-## Export — `ExportMenu.tsx` + `utils/excelUtils.ts`
+## Export — `ExportMenu.tsx` + `src/lib/excel/index.ts`
 
 - ✅ **Four menu entries** offering three real formats: Excel Workbook (`.xlsx`), CSV, and
   Text tab-delimited (`.txt`).

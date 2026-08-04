@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { UploadedFile, ExcelRow } from '../types';
-import { Button } from './Button';
+import { UploadedFile, ExcelRow } from '@/types';
+import { Button } from '@/components/ui/Button';
 import { Search, ArrowRight, Table, Check, AlertCircle, FileSpreadsheet, Plus, X } from 'lucide-react';
 
 interface VlookupPanelProps {

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, FileSpreadsheet, FileText, FileType } from 'lucide-react';
-import { Button } from './Button';
-import { ExportFormat } from '../types';
+import { Button } from '@/components/ui/Button';
+import { ExportFormat } from '@/types';
 
 interface ExportMenuProps {
   onExport: (format: ExportFormat) => void;

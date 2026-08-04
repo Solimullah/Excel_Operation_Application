@@ -10,10 +10,11 @@ context/_archive-mailpulse
 # Legacy sources predating Prettier. Formatting these would rewrite every
 # working component to introduce tooling, so they are exempt for now.
 # Remove a line here as each area is reformatted deliberately.
-App.tsx
-types.ts
-index.tsx
 index.html
 metadata.json
-components/
-utils/
+src/app/App.tsx
+src/main.tsx
+src/types/
+src/components/
+src/features/
+src/lib/excel/index.ts

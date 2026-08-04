@@ -60,8 +60,8 @@ defaults and validates in one place, rather than touching `import.meta.env` dire
 
 ```
 src/
-├── main.tsx                 Entry: createRoot → StrictMode → ErrorBoundary → App
-├── app/                     The shell — App.tsx, ErrorBoundary
+├── main.tsx                 Entry: createRoot → StrictMode → App
+├── app/                     The shell — App.tsx, ErrorBoundary (unmounted)
 ├── components/
 │   ├── layout/              Layout, Sidebar, NavItem
 │   └── ui/                  Button, ExportMenu, and other shared primitives
@@ -145,45 +145,12 @@ Set `VITE_BASE_PATH` if deploying under a path prefix rather than at the domain 
 
 ## Restructure
 
-If you are looking at a flat repository with `App.tsx` at the root, the migration to the
-layout above has not been run yet.
+The move from the original flat layout into `src/` has been carried out;
+`scripts/migrate-structure.sh` is kept for reference and is now a no-op.
 
-```bash
-# 1. Create a rollback point. Do not skip this.
-git init && git add -A && git commit -m "baseline before restructure"
-
-# 2. Review the plan.
-./scripts/migrate-structure.sh
-
-# 3. Apply it.
-./scripts/migrate-structure.sh --apply
-
-# 4. Install the tooling the new configs expect.
-npm i -D vitest @vitest/coverage-v8 jsdom \
-        @testing-library/react @testing-library/jest-dom @testing-library/user-event \
-        eslint @eslint/js typescript-eslint globals \
-        eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-react-refresh \
-        eslint-plugin-jsx-a11y eslint-plugin-import eslint-import-resolver-typescript \
-        eslint-config-prettier prettier
-
-# 5. Add the scripts.
-npm pkg set scripts.typecheck="tsc --noEmit"
-npm pkg set scripts.lint="eslint ."
-npm pkg set scripts.lint:fix="eslint . --fix"
-npm pkg set scripts.format="prettier --write ."
-npm pkg set scripts.format:check="prettier --check ."
-npm pkg set scripts.test="vitest"
-npm pkg set scripts.test:run="vitest run"
-npm pkg set scripts.test:coverage="vitest run --coverage"
-npm pkg set scripts.validate="npm run typecheck && npm run lint && npm run test:run && npm run build"
-npm pkg set engines.node=">=22"
-
-# 6. Verify.
-npm run validate
-npm run preview     # then load a messy workbook and export it
-```
-
----
+One piece of groundwork is still unwired: `src/app/ErrorBoundary.tsx` exists but is not
+mounted in `src/main.tsx`. Until it is, a render error in any panel unmounts the whole tree
+and the user loses every loaded file with no explanation.
 
 ## Documentation
 

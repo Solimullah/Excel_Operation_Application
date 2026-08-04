@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { UploadedFile, ExcelRow } from '../types';
-import { Button } from './Button';
+import { UploadedFile, ExcelRow } from '@/types';
+import { Button } from '@/components/ui/Button';
 import { Combine, CheckSquare, Square, FileSpreadsheet, MoreVertical, Layers, ArrowDown, TableProperties, SplitSquareHorizontal } from 'lucide-react';
-import { downloadExcelFile } from '../utils/excelUtils';
-import { ExportMenu } from './ExportMenu';
+import { downloadExcelFile } from '@/lib/excel';
+import { ExportMenu } from '@/components/ui/ExportMenu';
 
 interface MergePanelProps {
   files: UploadedFile[];

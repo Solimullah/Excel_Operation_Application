@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadedFile } from '../types';
+import { UploadedFile } from '@/types';
 import { Sparkles, Hash, Type, Calendar, ChevronDown } from 'lucide-react';
 
 interface AnalysisPanelProps {

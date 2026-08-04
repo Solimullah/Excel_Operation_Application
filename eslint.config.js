@@ -126,9 +126,8 @@ export default tseslint.config(
   },
 
   // The excel wrapper is the one place allowed to import xlsx directly.
-  // Two paths listed: the current location, and where the restructure moves it.
   {
-    files: ['utils/excelUtils.ts', 'src/lib/excel/**/*.ts'],
+    files: ['src/lib/excel/**/*.ts'],
     rules: { 'no-restricted-imports': 'off' },
   },
 
@@ -168,7 +167,13 @@ export default tseslint.config(
   //   - set-state-in-effect: the self-healing selection effect in every panel
   // ---------------------------------------------------------------------------
   {
-    files: ['App.tsx', 'components/**/*.tsx', 'utils/**/*.ts', 'types.ts'],
+    files: [
+      'src/app/App.tsx',
+      'src/components/**/*.tsx',
+      'src/features/**/*.tsx',
+      'src/lib/excel/index.ts',
+      'src/types/**/*.ts',
+    ],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',

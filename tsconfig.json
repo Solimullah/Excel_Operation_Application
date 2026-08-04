@@ -41,7 +41,7 @@
     "noFallthroughCasesInSwitch": false
   },
 
-  "include": ["src", "App.tsx", "index.tsx", "types.ts", "components", "utils"],
+  "include": ["src"],
 
   "exclude": [
     "node_modules",

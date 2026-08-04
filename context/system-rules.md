@@ -100,7 +100,7 @@ this one is the exception that must survive.
 
 Changes to any of the following need explicit approval, not just a clean `npm run lint`:
 
-- `utils/excelUtils.ts` — both functions, and particularly the `raw` / `defval` options
+- `src/lib/excel/index.ts` — both functions, and particularly the `raw` / `defval` options
 - `App.handleFileUpdate` — every destructive edit in the app funnels through it
 - `processData` in `CleaningPanel.tsx` — the transform engine
 - `handlePerformVlookup` in `VlookupPanel.tsx` — see §2
