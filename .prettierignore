@@ -4,7 +4,6 @@ node_modules
 node-v20.11.1-win-x64
 package-lock.json
 migrated_prompt_history
-context/_archive-mailpulse
 *.md
 
 # Legacy sources predating Prettier. Formatting these would rewrite every

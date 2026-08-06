@@ -7,14 +7,11 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
 
-    "allowJs": true,
     "isolatedModules": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "noEmit": true,
 
-    "experimentalDecorators": true,
     "useDefineForClassFields": false,
 
     "types": ["node", "vite/client"],
