@@ -51,8 +51,8 @@ All configuration is build-time. Vite inlines every `VITE_*` variable into the b
 **everything in `.env.local` is public**. There is no server here and therefore no such
 thing as a server-side secret — never put an API key or password in this repository.
 
-See `.env.example` for the full list. Read it through `src/config/env.ts`, which parses,
-defaults and validates in one place, rather than touching `import.meta.env` directly.
+See `.env.example` for the full list. Nothing currently reads these values — the app has
+no configuration layer yet.
 
 ---
 
@@ -61,7 +61,7 @@ defaults and validates in one place, rather than touching `import.meta.env` dire
 ```
 src/
 ├── main.tsx                 Entry: createRoot → StrictMode → App
-├── app/                     The shell — App.tsx, ErrorBoundary (unmounted)
+├── app/                     The shell — App.tsx
 ├── components/
 │   ├── layout/              Layout, Sidebar, NavItem
 │   └── ui/                  Button, ExportMenu, and other shared primitives
@@ -76,10 +76,7 @@ src/
 │   ├── formula/             Formula Builder
 │   └── charts/              Visualizations
 ├── lib/
-│   ├── excel/               The ONLY module that imports xlsx
-│   ├── logger.ts            Level-gated console logger
-│   └── errors.ts            Typed error taxonomy
-├── config/                  env.ts, constants.ts
+│   └── excel/               The ONLY module that imports xlsx
 ├── types/                   Shared types
 └── styles/                  index.css
 ```
@@ -99,10 +96,10 @@ npm run test:coverage     # with coverage thresholds
 
 Vitest with jsdom. Co-locate tests beside the code as `thing.test.ts`.
 
-`tests/fixtures.ts` provides `messyRows` — deliberately awkward data covering the cases
-that have historically produced wrong exports: a duplicate row, an all-blank row, a
-leading-`+` phone number, a leading-zero code, and a key that is missing from row 0. Prefer
-it over clean fixtures.
+Test with **awkward** data, not tidy data: a duplicate row, an all-blank row, a leading-`+`
+phone number, a leading-zero postcode, and a key missing from row 0. Those are the cases
+that have historically produced wrong exports. `src/lib/excel/index.test.ts` covers the
+value-fidelity contract.
 
 **Testing a data change is not finished until you have opened the exported file.** The Data
 View renders only the first 100 rows and charts only the first 20, so the screen is not the
@@ -145,12 +142,11 @@ Set `VITE_BASE_PATH` if deploying under a path prefix rather than at the domain 
 
 ## Restructure
 
-The move from the original flat layout into `src/` has been carried out;
-`scripts/migrate-structure.sh` is kept for reference and is now a no-op.
+The move from the original flat layout into `src/` has been carried out. The one-time
+migration script has been removed; it lives in git history if ever needed.
 
-One piece of groundwork is still unwired: `src/app/ErrorBoundary.tsx` exists but is not
-mounted in `src/main.tsx`. Until it is, a render error in any panel unmounts the whole tree
-and the user loses every loaded file with no explanation.
+**There is no error boundary.** A render error in any panel unmounts the whole tree and the
+user loses every loaded file with no explanation. Worth adding.
 
 ## Documentation
 
@@ -169,6 +165,6 @@ are not obvious from any single file:
 ## A note on the naming
 
 Several surfaces say "AI" — "ExcelAI", "VLOOKUP AI", "Formula AI", "Smart Insights". **No
-inference happens anywhere in this application.** Every result is produced by local
-deterministic code. The project was scaffolded from Google AI Studio and the branding
-outlived the integration, which was never wired up. See `context/project-memory.md` §4.
+inference happens anywhere in this application.** Every result is produced by local,
+deterministic code: template substitution, set membership, `Map` lookups and arithmetic.
+The names are branding, not behaviour. Renaming them is an open decision.

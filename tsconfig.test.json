@@ -4,5 +4,5 @@
     "types": ["node", "vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src", "tests", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist", "coverage", "node-v20.11.1-win-x64"]
+  "exclude": ["node_modules", "dist", "coverage"]
 }

@@ -65,8 +65,9 @@ Four stages per session:
 3. **Operate** — clean, compare, merge, split, join, chart.
 4. **Export** — `.xlsx`, `.csv` or tab-delimited `.txt`.
 
-Everything is local, deterministic and synchronous. **There is no AI**, despite the naming —
-an earlier scaffold included a Gemini integration and it was never wired up.
+Everything is local, deterministic and synchronous. **There is no AI**, despite the naming.
+An earlier scaffold included a model integration; it was never wired up and has since been
+removed entirely.
 
 ---
 
@@ -149,7 +150,7 @@ State them plainly; they are the honest half of the deck.
 
 | Item | Impact |
 |---|---|
-| **The "AI" branding is empty** | Four surfaces are named as though a model is involved and the metadata claims it is "powered by Google Gemini". Nothing performs inference. Needs a rename or a real decision. |
+| **The "AI" branding is empty** | Four surfaces are named as though a model is involved. Nothing performs inference. Needs a rename or a real decision. |
 | **Only the first worksheet is read** | Multi-tab workbooks lose every other tab, silently. No sheet picker. |
 | **Columns are read from the first row only** | A field missing from row 1 is invisible in every view and every export. |
 | **A VLOOKUP defect** | The joined column's name is decided per row, so only the first row's naming survives. Real data loss. |

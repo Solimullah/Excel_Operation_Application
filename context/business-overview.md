@@ -15,19 +15,14 @@ Verified against the code on **2026-08-25**.
 | | |
 |---|---|
 | Package name | `excelfile-operations` v0.0.0 |
-| Name in `metadata.json` | **ExcelFile Operations** |
 | Name in the UI | **ExcelAI** (sidebar) / **ExcelAI Master** (footer, browser title) |
-| Origin | Scaffolded from Google AI Studio — app `96521e5a-6507-4818-ae50-caba7a0fb8d5` |
 | Deployment | **None.** No host configuration, CI, or Dockerfile exists. |
 | Distribution | Runs locally via `npm run dev`, or as static files from `npm run build` |
 
-🟡 **The branding is inconsistent across five surfaces** — package name, `metadata.json`,
-sidebar, footer and `<title>` all differ. Picking one is an open decision
-(`project-memory.md` §4).
+🟡 **The branding is inconsistent across four surfaces** — package name, sidebar, footer
+and `<title>` all differ. Picking one is an open decision (`project-memory.md` §4).
 
-The `metadata.json` description — *"A powerful Excel manipulation tool powered by Google
-Gemini"* — is **factually wrong**. Nothing in the application calls Gemini or any other
-model. See §6.
+No inference happens anywhere in the application; see §6.
 
 ---
 
@@ -101,10 +96,7 @@ None of this is stated anywhere in the repository. **Treat it as a hypothesis.**
 Signals point to a small internal audience rather than a released product:
 
 - No authentication, no multi-user concept, no deployment configuration.
-- `README.md` is the untouched AI Studio scaffold, aimed at whoever runs it locally.
-- A Windows Node runtime (`node.zip`, `node-v20.11.1-win-x64/`) is vendored at the
-  repository root — which suggests it was handed to someone on Windows to run without
-  installing Node themselves.
+- `README.md` is aimed at whoever runs it locally, not at a released audience.
 - The UI assumes familiarity: no onboarding, no tooltips, no documentation.
 
 The most likely reading is **an internal tool for the eGENTIC team**, run locally by
@@ -115,10 +107,9 @@ whoever needs it. Whether it is meant to be shared more widely is an open questi
 ## 6. What it explicitly is not
 
 - **Not an AI product.** Four surfaces are named as though a model is involved — "ExcelAI",
-  "VLOOKUP AI", "Formula AI", "Smart Insights" — and `metadata.json` claims it is *"powered
-  by Google Gemini"*. **No inference happens anywhere.** Every result is produced by local
-  deterministic code. The Gemini references in `vite.config.ts` and `index.html` are
-  scaffold leftovers that nothing reads.
+  "VLOOKUP AI", "Formula AI", "Smart Insights". **No inference happens anywhere.** Every
+  result is produced by local deterministic code. The scaffold leftovers that once implied
+  otherwise have all been deleted; only the misleading names remain.
 - **Not a formula engine.** The Formula Builder produces formula *text* from five
   templates; sending one to the pipeline writes that text into every cell of a column. It
   does not evaluate, and it does not create a live Excel formula.

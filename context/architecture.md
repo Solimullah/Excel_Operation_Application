@@ -26,30 +26,19 @@ No server, no database, no API, no authentication, no telemetry, no analytics, a
 LLM call of any kind**. `npm run build` produces static assets; anything that can serve a
 folder can host this.
 
-### The Gemini leftovers
+### No AI, and no trace of one
 
-The project was scaffolded from Google AI Studio, and two dead references survive:
+The project was originally scaffolded from a tool that wired in a Gemini client. Every
+trace of it has been removed: the `GEMINI_API_KEY` defines in `vite.config.ts`, the
+`@google/genai` importmap entry in `index.html`, and the generated `metadata.json` that
+described the app as "powered by Google Gemini".
 
-- `vite.config.ts` defines `process.env.API_KEY` and `process.env.GEMINI_API_KEY` from
-  `env.GEMINI_API_KEY`.
-- `index.html` maps `@google/genai` in its importmap.
+**No module references any model, API key or network client.** The names "ExcelAI",
+"VLOOKUP AI", "Formula AI" and "Smart Insights" in the UI are branding, not behaviour —
+all four are local deterministic code. See `system-rules.md` §5 before adding a real AI
+dependency.
 
-**Nothing imports either.** No module in this repository references `@google/genai`,
-`API_KEY` or any network client. The names "ExcelAI", "VLOOKUP AI", "Formula AI" and
-"Smart Insights" in the UI are branding, not behaviour — all four are local deterministic
-code. See `system-rules.md` §5 before adding a real AI dependency.
-
-### Two dependency declarations, one runtime
-
-Dependencies are declared **twice**, and it matters:
-
-- `package.json` — what `npm install` fetches, and what Vite bundles in `npm run build`.
-- The `index.html` importmap — bare-specifier URLs pointing at `esm.sh`.
-
-Vite's bundling wins in both `dev` and `build`, so the importmap is effectively inert
-today. But it is still in the HTML, so a version bump made in only one place leaves the two
-disagreeing. **Change both, or delete the importmap.** The importmap also lists
-`@google/genai`, which is in neither `package.json` nor any import statement.
+`package.json` is the single dependency declaration. Vite bundles everything at build time.
 
 Tailwind arrives from `cdn.tailwindcss.com` as a `<script>` tag — there is **no Tailwind
 build step, no `tailwind.config.js` and no PostCSS**. Consequences in
@@ -239,5 +228,6 @@ handling anywhere in the codebase.
 - **Type-check:** `npm run lint` — `tsc --noEmit`. Not a linter; there is no ESLint.
 - **Tests:** **none.** There is no test script, no test runner and no test file.
 
-`node.zip` (29 MB) and `node-v20.11.1-win-x64/` sit at the repository root and are not
-listed in `.gitignore`. They are a vendored Windows Node runtime, unrelated to the build.
+A vendored Windows Node 20 runtime (`node.zip` plus its extracted folder, 113 MB) once sat
+at the repository root. It has been deleted — the project pins Node 22, so it could not
+have been used.

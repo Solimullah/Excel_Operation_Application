@@ -9,12 +9,6 @@ export interface UploadedFile {
   columns: string[];
 }
 
-export interface ChartConfig {
-  xAxis: string;
-  yAxis: string;
-  type: 'bar' | 'line' | 'scatter' | 'pie';
-}
-
 export enum AppTab {
   UPLOAD = 'UPLOAD',
   VIEW = 'VIEW',

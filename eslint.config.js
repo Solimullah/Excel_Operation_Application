@@ -17,7 +17,7 @@ import prettier from 'eslint-config-prettier';
  * of them.
  */
 export default tseslint.config(
-  { ignores: ['dist/**', 'coverage/**', 'node_modules/**', 'node-v20.11.1-win-x64/**'] },
+  { ignores: ['dist/**', 'coverage/**', 'node_modules/**'] },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -129,12 +129,6 @@ export default tseslint.config(
   {
     files: ['src/lib/excel/**/*.ts'],
     rules: { 'no-restricted-imports': 'off' },
-  },
-
-  // The logger is the one place allowed to call console freely.
-  {
-    files: ['src/lib/logger.ts'],
-    rules: { 'no-console': 'off' },
   },
 
   // Tests get a looser leash.

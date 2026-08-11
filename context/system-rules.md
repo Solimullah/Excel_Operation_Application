@@ -78,9 +78,9 @@ breaks and the most damaging.
 Despite the naming — "ExcelAI", "VLOOKUP AI", "Formula AI", "Smart Insights" — this
 application performs **no inference of any kind**. Every panel is deterministic local code.
 
-- `vite.config.ts` still defines `process.env.API_KEY` and `process.env.GEMINI_API_KEY`;
-  `index.html` still maps `@google/genai`. **Nothing reads either.** Deleting these dead
-  references is sanctioned cleanup.
+- Every scaffold leftover has been deleted: the `GEMINI_API_KEY` defines, the
+  `@google/genai` importmap entry, and the generated `metadata.json`. **Do not
+  reintroduce them.**
 - **Wiring up a real model is a product decision**, not an implementation detail: it breaks
   §1 the moment row data is sent to a provider. Ask first, and expect the answer to require
   a data-handling story.

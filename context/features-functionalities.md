@@ -245,9 +245,9 @@ downloaded.
   to the File Manager when no files are loaded.
 - ✅ **Shared `Button`** with four variants, three sizes and a loading spinner.
 - 🟡 **Several panels hand-roll `<button>` elements** instead of using `Button`.
-- 🟡 **Branding is inconsistent** — the sidebar says "ExcelAI", the footer "ExcelAI Master",
-  `index.html`'s `<title>` "ExcelAI Master", `metadata.json` "ExcelFile Operations", and
-  `package.json` `excelfile-operations`.
+- 🟡 **Branding is inconsistent** — the sidebar says "ExcelAI", the footer and
+  `index.html`'s `<title>` say "ExcelAI Master", and `package.json` says
+  `excelfile-operations`.
 - 🟡 **Off-brand styling.** Stock Tailwind indigo/gray with shadows, against an eGENTIC
   guide that permits neither. See `coding-conventions.md` and `project-memory.md` §4.
 - 🔵 **No dark mode, no responsive sidebar** (fixed `w-64`, `ml-64`), **no keyboard
@@ -262,10 +262,7 @@ downloaded.
 
 - ✅ **Fully client-side.** No network request of any kind is made by this application.
 - ✅ **No persistence**, by design — a reload clears all state.
-- 🟡 **No AI anywhere**, despite four AI-suggesting labels. `vite.config.ts` still defines
-  `API_KEY` / `GEMINI_API_KEY` and `index.html` still maps `@google/genai`; nothing reads
-  either.
-- 🟡 **`index.html` links `/index.css`**, which does not exist — a 404 on every load.
+- 🟡 **No AI anywhere**, despite four AI-suggesting labels. All scaffold leftovers that
+  implied otherwise have been deleted; the misleading names remain.
 - 🟡 **No tests, no ESLint, no CI.** `npm run lint` is `tsc --noEmit`, and `strict` is off.
-- 🟡 **`node.zip` (29 MB) and `node-v20.11.1-win-x64/`** sit unignored at the repo root.
 - 🔵 **No deployment configuration** — no Dockerfile, no CI workflow, no host config.

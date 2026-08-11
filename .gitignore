@@ -28,18 +28,10 @@ dist-ssr
 .env.local
 .env.*.local
 
-# Vendored Windows Node runtime — not part of the build
-node.zip
-node-v20.11.1-win-x64/
-
 # Working documentation is tracked, EXCEPT the personal notes:
 # project-memory.md records working preferences and verbatim quotes and
 # stays on this machine only.
 context/project-memory.md
-
-# Google AI Studio conversation history from the original scaffold.
-# Kept locally for reference; not part of the codebase.
-migrated_prompt_history/
 
 # Test coverage output
 coverage

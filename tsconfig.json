@@ -44,7 +44,6 @@
     "node_modules",
     "dist",
     "coverage",
-    "node-v20.11.1-win-x64",
     "migrated_prompt_history",
     // Typechecked by tsconfig.test.json instead, which requires the dev
     // dependencies from the README's "Restructure" step to be installed.

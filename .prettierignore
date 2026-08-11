@@ -1,7 +1,6 @@
 dist
 coverage
 node_modules
-node-v20.11.1-win-x64
 package-lock.json
 migrated_prompt_history
 *.md
@@ -10,7 +9,6 @@ migrated_prompt_history
 # working component to introduce tooling, so they are exempt for now.
 # Remove a line here as each area is reformatted deliberately.
 index.html
-metadata.json
 src/app/App.tsx
 src/main.tsx
 src/types/

@@ -149,14 +149,13 @@ and the least visible when broken.
 ## 8. Do not add "AI" to something because it is labelled AI
 
 Four surfaces are named as though they use a model — the sidebar's "VLOOKUP AI", "Formula
-AI" and "Smart Insights", and the "ExcelAI" wordmark. **None of them do**, and the dead
-`GEMINI_API_KEY` defines in `vite.config.ts` plus the `@google/genai` importmap entry make
-it look as though one is half-wired.
+AI" and "Smart Insights", and the "ExcelAI" wordmark. **None of them do.** The scaffold
+leftovers that once made it look half-wired have all been deleted.
 
 - Do not "finish" that integration on your own initiative.
 - Do not send row data to any model, service or endpoint. See `system-rules.md` §1.
-- Removing the dead references is sanctioned cleanup; adding a live one is a product
-  decision that needs asking, with a data-handling answer attached.
+- Adding a live one is a product decision that needs asking, with a data-handling answer
+  attached.
 
 ---
 
