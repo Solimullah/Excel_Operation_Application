@@ -60,7 +60,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
     }
   }, [activeFile, selectedColumn]);
 
-  if (!activeFile) return <div className="text-center py-10 dark:text-gray-400">No files available.</div>;
+  if (!activeFile) return <div className="text-center py-10 dark:text-gray-300">No files available.</div>;
 
   const processData = (data: ExcelRow[], actions: CleaningAction[]) => {
     let newData = [...data];
@@ -221,7 +221,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                     <Trash2 className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
                     Row Operations
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Applied immediately to the file.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-300 mb-4">Applied immediately to the file.</p>
                 <div className="space-y-3">
                     <Button
                         variant="secondary"
@@ -284,7 +284,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                         <div className="md:col-span-4">
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase">Column</label>
+                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1 uppercase">Column</label>
                             <select
                                 value={selectedColumn}
                                 onChange={(e) => setSelectedColumn(e.target.value)}
@@ -294,7 +294,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                             </select>
                         </div>
                         <div className="md:col-span-3">
-                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase">Operation</label>
+                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1 uppercase">Operation</label>
                             <select
                                 value={currentOpType}
                                 onChange={(e) => setCurrentOpType(e.target.value as CleaningAction['type'])}
@@ -310,7 +310,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                         <div className="md:col-span-3">
                             {(currentOpType === 'add_prefix' || currentOpType === 'remove_prefix') && (
                                 <>
-                                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase">Value</label>
+                                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-300 mb-1 uppercase">Value</label>
                                     <input
                                         type="text"
                                         value={opValue}
@@ -354,11 +354,11 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                                                     <span className="font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                                                         <Calculator className="h-3 w-3 mr-1" /> FORMULA
                                                     </span>
-                                                    <span className="text-gray-500 dark:text-gray-400 mx-1">into</span>
+                                                    <span className="text-gray-500 dark:text-gray-300 mx-1">into</span>
                                                     <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded text-purple-600 dark:text-purple-400">
                                                         {action.column}
                                                     </span>
-                                                    <span className="text-gray-500 dark:text-gray-400 mx-1">=</span>
+                                                    <span className="text-gray-500 dark:text-gray-300 mx-1">=</span>
                                                     <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded text-gray-600 dark:text-gray-300 text-xs">
                                                         {action.value}
                                                     </span>
@@ -368,13 +368,13 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                                                     <span className="font-semibold text-gray-800 dark:text-gray-200">
                                                         {action.type.replace('_', ' ').toUpperCase()}
                                                     </span>
-                                                    <span className="text-gray-500 dark:text-gray-400 mx-1">on</span>
+                                                    <span className="text-gray-500 dark:text-gray-300 mx-1">on</span>
                                                     <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded text-gray-700 dark:text-gray-300">
                                                         {action.column}
                                                     </span>
                                                     {action.value && (
                                                         <>
-                                                            <span className="text-gray-500 dark:text-gray-400 mx-1">with value</span>
+                                                            <span className="text-gray-500 dark:text-gray-300 mx-1">with value</span>
                                                             <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded text-blue-600 dark:text-blue-400">"{action.value}"</span>
                                                         </>
                                                     )}
@@ -394,7 +394,7 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                 {/* Actions */}
                 <div className="flex flex-col xl:flex-row justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800 gap-4">
                     <div className="flex items-center space-x-4 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700 w-full xl:w-auto">
-                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase whitespace-nowrap">Output Scope:</span>
+                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase whitespace-nowrap">Output Scope:</span>
                         <label className="flex items-center space-x-2 cursor-pointer text-sm text-gray-700 dark:text-gray-300">
                             <input
                                 type="radio"
@@ -445,14 +445,14 @@ export const CleaningPanel: React.FC<CleaningPanelProps> = ({ files, onUpdateFil
                                     </div>
                                     <div>
                                         <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{result.name}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">
                                             {result.data.length} rows • {result.columns.length} columns • {result.timestamp.toLocaleTimeString()}
                                         </p>
                                     </div>
                                 </div>
                                 <ExportMenu
                                     trigger={
-                                        <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 dark:text-gray-400">
+                                        <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-500 dark:text-gray-300">
                                             <MoreVertical className="h-5 w-5" />
                                         </button>
                                     }

@@ -43,7 +43,7 @@ const NavItem = ({
     className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all ${
       active
         ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
-        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100'
     }`}
   >
     <Icon className={`h-5 w-5 ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`} />
@@ -59,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center">
             <FileSpreadsheet className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-gray-100">ExcelAI</span>
+            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-gray-100">Workbench</span>
           </div>
           <button
             onClick={onToggleTheme}
@@ -163,8 +163,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {fileCount} Active File{fileCount !== 1 ? 's' : ''}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  ExcelAI Master
+                <p className="text-xs text-gray-500 dark:text-gray-300 truncate">
+                  Sales Support Workbench
                 </p>
               </div>
             </div>

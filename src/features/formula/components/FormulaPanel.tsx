@@ -67,7 +67,7 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
     }
   };
 
-  if (!activeFile) return <div className="text-center py-10 dark:text-gray-400">No files available.</div>;
+  if (!activeFile) return <div className="text-center py-10 dark:text-gray-300">No files available.</div>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
@@ -95,7 +95,7 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
              <Calculator className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mr-2" />
              <h3 className="font-bold text-gray-900 dark:text-gray-100">Formula Templates</h3>
            </div>
-           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">Local Builder</div>
+           <div className="text-xs text-gray-500 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">Local Builder</div>
         </div>
 
         <div className="p-6 space-y-6">
@@ -118,7 +118,7 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
                             >
                                 {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{selectedTemplate.desc}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{selectedTemplate.desc}</p>
                         </div>
 
                         <div className="space-y-3">

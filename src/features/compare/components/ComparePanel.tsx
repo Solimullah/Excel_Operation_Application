@@ -30,7 +30,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
       <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
         <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Not Enough Files</h3>
-        <p className="text-gray-500 dark:text-gray-400">Please upload at least 2 files to use the comparison feature.</p>
+        <p className="text-gray-500 dark:text-gray-300">Please upload at least 2 files to use the comparison feature.</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
            {/* Connector Icon */}
            <div className="hidden md:flex absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-100 dark:bg-gray-800 p-2 rounded-full border border-gray-200 dark:border-gray-700 z-10">
-                <ArrowRightLeft className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <ArrowRightLeft className="h-5 w-5 text-gray-500 dark:text-gray-300" />
            </div>
 
            {/* Source 1 */}
@@ -74,7 +74,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
                 <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-4">Source File A</h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Select File</label>
+                        <label className="block text-sm text-gray-500 dark:text-gray-300 mb-1">Select File</label>
                         <select
                             value={file1Id}
                             onChange={(e) => setFile1Id(e.target.value)}
@@ -84,7 +84,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Compare Column</label>
+                        <label className="block text-sm text-gray-500 dark:text-gray-300 mb-1">Compare Column</label>
                          <select
                             value={col1}
                             onChange={(e) => setCol1(e.target.value)}
@@ -101,7 +101,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
                 <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-4">Source File B</h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Select File</label>
+                        <label className="block text-sm text-gray-500 dark:text-gray-300 mb-1">Select File</label>
                         <select
                             value={file2Id}
                             onChange={(e) => setFile2Id(e.target.value)}
@@ -111,7 +111,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
                         </select>
                     </div>
                     <div>
-                         <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Compare Column</label>
+                         <label className="block text-sm text-gray-500 dark:text-gray-300 mb-1">Compare Column</label>
                          <select
                             value={col2}
                             onChange={(e) => setCol2(e.target.value)}
@@ -136,7 +136,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
                 <h4 className="font-bold text-lg text-red-600 dark:text-red-400 mb-2">Unique to {file1?.name}</h4>
-                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.in1Only.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-400">rows</span></div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.in1Only.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-300">rows</span></div>
                 <ExportMenu
                     label="Download"
                     size="sm"
@@ -145,7 +145,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
             </div>
              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
                 <h4 className="font-bold text-lg text-green-600 dark:text-green-400 mb-2">Common Rows</h4>
-                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.common.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-400">rows</span></div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.common.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-300">rows</span></div>
                 <ExportMenu
                     label="Download"
                     size="sm"
@@ -154,7 +154,7 @@ export const ComparePanel: React.FC<ComparePanelProps> = ({ files }) => {
             </div>
              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
                 <h4 className="font-bold text-lg text-blue-600 dark:text-blue-400 mb-2">Unique to {file2?.name}</h4>
-                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.in2Only.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-400">rows</span></div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{result.in2Only.length} <span className="text-sm font-normal text-gray-500 dark:text-gray-300">rows</span></div>
                  <ExportMenu
                     label="Download"
                     size="sm"

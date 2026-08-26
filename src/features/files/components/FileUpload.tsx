@@ -90,7 +90,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesSelect, on
           <UploadCloud className="h-8 w-8" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Upload Data Files</h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-8">
+        <p className="text-gray-500 dark:text-gray-300 mb-8">
           Upload at least 2 files to use the Comparison and Merge features.
           <br />
           Drag and drop files here, or click below to browse.
@@ -137,7 +137,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesSelect, on
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">{file.data.length} rows, {file.columns.length} columns</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-300">{file.data.length} rows, {file.columns.length} columns</p>
                             </div>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => onRemoveFile(file.id)}>

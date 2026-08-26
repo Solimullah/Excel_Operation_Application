@@ -1,5 +1,5 @@
 {
-  "name": "excelfile-operations",
+  "name": "sales-support-workbench",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -54,5 +54,6 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "description": "Internal workbench for sales support spreadsheet operations."
 }

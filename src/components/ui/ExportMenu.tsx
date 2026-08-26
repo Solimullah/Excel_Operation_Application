@@ -65,7 +65,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
               </div>
               <div>
                 <span className="block font-medium">Excel Workbook</span>
-                <span className="block text-xs text-gray-500 dark:text-gray-400">*.xlsx</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-300">*.xlsx</span>
               </div>
             </button>
             <button
@@ -78,7 +78,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
               </div>
               <div>
                 <span className="block font-medium">CSV UTF-8 (Comma)</span>
-                <span className="block text-xs text-gray-500 dark:text-gray-400">*.csv</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-300">*.csv</span>
               </div>
             </button>
             <button
@@ -91,7 +91,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
               </div>
               <div>
                 <span className="block font-medium">CSV (Comma delimited)</span>
-                <span className="block text-xs text-gray-500 dark:text-gray-400">*.csv</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-300">*.csv</span>
               </div>
             </button>
             <button
@@ -104,7 +104,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
               </div>
                <div>
                 <span className="block font-medium">Text (Tab delimited)</span>
-                <span className="block text-xs text-gray-500 dark:text-gray-400">*.txt</span>
+                <span className="block text-xs text-gray-500 dark:text-gray-300">*.txt</span>
               </div>
             </button>
           </div>

@@ -245,7 +245,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
       <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 max-w-2xl mx-auto">
         <Combine className="h-12 w-12 text-indigo-400 dark:text-indigo-400/70 mx-auto mb-4" />
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Merge & Split Workspace</h3>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 px-6">
+        <p className="text-gray-500 dark:text-gray-300 mt-2 px-6">
           Upload files in the File Manager to use the merge or split features.
         </p>
       </div>
@@ -265,7 +265,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
               <button
                   onClick={() => setMode('merge')}
                   className={`flex items-center px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                      mode === 'merge' ? 'bg-white dark:bg-gray-900 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                      mode === 'merge' ? 'bg-white dark:bg-gray-900 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
               >
                   <Combine className="h-4 w-4 mr-2" />
@@ -274,7 +274,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
               <button
                   onClick={() => setMode('split')}
                   className={`flex items-center px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                      mode === 'split' ? 'bg-white dark:bg-gray-900 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                      mode === 'split' ? 'bg-white dark:bg-gray-900 text-indigo-700 dark:text-indigo-400 shadow-sm' : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
               >
                   <SplitSquareHorizontal className="h-4 w-4 mr-2" />
@@ -325,7 +325,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                         <p className={`text-sm font-medium truncate ${isSelected ? 'text-indigo-900 dark:text-indigo-300' : 'text-gray-900 dark:text-gray-100'}`}>
                                             {file.name}
                                         </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">
                                             {file.data.length} rows • {file.columns.length} headers
                                         </p>
                                     </div>
@@ -336,7 +336,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
 
                     {selectedMergeFileIds.size > 0 && (
                         <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                            <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-2 flex items-center">
+                            <h4 className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase mb-2 flex items-center">
                                 <TableProperties className="h-3 w-3 mr-1" />
                                 Detected Merge Schema ({currentSelectionHeaders.size} columns)
                             </h4>
@@ -420,7 +420,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                 {splitMethod === 'column' ? (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">3. Target Column to Split By</label>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">The file will be separated into new files for every unique value found in this column.</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300 mb-2">The file will be separated into new files for every unique value found in this column.</p>
                                         <select
                                             value={splitColumn}
                                             onChange={(e) => setSplitColumn(e.target.value)}
@@ -454,7 +454,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">4. Percentage for first file (1-99)</label>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">The dataset will be split into two files based on this percentage (e.g., {splitPercentage}% and {100 - splitPercentage}%).</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-300 mb-2">The dataset will be split into two files based on this percentage (e.g., {splitPercentage}% and {100 - splitPercentage}%).</p>
                                             <input
                                                 type="number"
                                                 value={splitPercentage}
@@ -482,7 +482,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                 ) : (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">3. Maximum Rows per File</label>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">The file will be chunked into parts containing up to this number of rows.</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300 mb-2">The file will be chunked into parts containing up to this number of rows.</p>
                                         <input
                                             type="number"
                                             value={rowsPerFile}
@@ -566,7 +566,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                                         Split Segment
                                                     </span>
                                                 )}
-                                                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                                <span className="text-xs text-gray-500 dark:text-gray-300 whitespace-nowrap">
                                                     {result.data.length} rows
                                                 </span>
                                             </div>
@@ -574,7 +574,7 @@ export const MergePanel: React.FC<MergePanelProps> = ({ files }) => {
                                     </div>
                                     <ExportMenu
                                         trigger={
-                                            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-500 dark:text-gray-400 flex-shrink-0">
+                                            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-500 dark:text-gray-300 flex-shrink-0">
                                                 <MoreVertical className="h-5 w-5" />
                                             </button>
                                         }

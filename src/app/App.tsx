@@ -137,7 +137,7 @@ const App: React.FC = () => {
     if (files.length === 0) {
        return (
          <div className="text-center py-20">
-           <p className="text-gray-500 dark:text-gray-400 mb-4">No files uploaded yet.</p>
+           <p className="text-gray-500 dark:text-gray-300 mb-4">No files uploaded yet.</p>
            <button
              onClick={() => setActiveTab(AppTab.UPLOAD)}
              className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
@@ -183,7 +183,7 @@ const App: React.FC = () => {
              activeTab === AppTab.CLEANING ? 'Operations & Cleaning' :
              'Formula Builder'}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-gray-500 dark:text-gray-300 mt-1">
             {activeExtraTool ? activeExtraTool.description :
              activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
              activeTab === AppTab.VIEW ? 'View and export your data.' :

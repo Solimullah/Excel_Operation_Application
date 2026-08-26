@@ -21,7 +21,7 @@ export const DataView: React.FC<DataViewProps> = ({ files, onDownload }) => {
 
   if (!activeFile) {
     return (
-      <div className="text-center py-20 text-gray-500 dark:text-gray-400">
+      <div className="text-center py-20 text-gray-500 dark:text-gray-300">
         No files uploaded. Please go to the File Manager.
       </div>
     );
@@ -52,7 +52,7 @@ export const DataView: React.FC<DataViewProps> = ({ files, onDownload }) => {
         </div>
 
         <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
+            <span className="text-sm text-gray-500 dark:text-gray-300 mr-2">
                 Showing top 100 of {activeFile.data.length} rows
             </span>
             <ExportMenu onExport={(format) => onDownload(activeFile.id, format)} />
@@ -68,7 +68,7 @@ export const DataView: React.FC<DataViewProps> = ({ files, onDownload }) => {
                   <th
                     key={idx}
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
                   >
                     {col}
                   </th>
