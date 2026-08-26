@@ -9,7 +9,8 @@ import { ChartPanel } from '@/features/charts/components/ChartPanel';
 import { ComparePanel } from '@/features/compare/components/ComparePanel';
 import { MergePanel } from '@/features/merge-split/components/MergePanel';
 import { VlookupPanel } from '@/features/vlookup/components/VlookupPanel';
-import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction } from '@/types';
+import { ExtraToolFrame } from '@/components/ui/ExtraToolFrame';
+import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction, EXTRA_TOOLS } from '@/types';
 import { readExcelFile, downloadExcelFile } from '@/lib/excel';
 
 const getInitialTheme = (): 'light' | 'dark' => {
@@ -120,6 +121,10 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+    const extraTool = EXTRA_TOOLS.find(t => t.tab === activeTab);
+    if (extraTool) {
+      return <ExtraToolFrame src={extraTool.path} title={extraTool.name} />;
+    }
 
     if (activeTab === AppTab.UPLOAD) {
       return (
@@ -170,12 +175,14 @@ const App: React.FC = () => {
     );
   };
 
+  const activeExtraTool = EXTRA_TOOLS.find(t => t.tab === activeTab);
 
   return (
     <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length} theme={theme} onToggleTheme={toggleTheme}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            {activeTab === AppTab.UPLOAD ? 'File Manager' :
+            {activeExtraTool ? activeExtraTool.name :
+             activeTab === AppTab.UPLOAD ? 'File Manager' :
              activeTab === AppTab.VIEW ? 'Data Overview' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
              activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
@@ -186,7 +193,8 @@ const App: React.FC = () => {
              'Visualization'}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">
-            {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
+            {activeExtraTool ? activeExtraTool.description :
+             activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
              activeTab === AppTab.VIEW ? 'View and export your data.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :
              activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :

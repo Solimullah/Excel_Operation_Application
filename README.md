@@ -3,9 +3,9 @@
 A browser-based workbench for the spreadsheet operations that are tedious across multiple
 files — compare, merge, split, join, clean, profile and chart — with an export at every step.
 
-**Nothing leaves your machine.** There is no backend, no upload, no account and no storage.
-Files are read into the browser tab, transformed in memory, and written back out as a
-download. Closing the tab discards everything.
+**Nothing leaves your machine.** There is no backend, no upload and no account. Files are
+read into the browser tab, transformed in memory, and written back out as a download.
+Closing the tab discards everything; the only thing stored is your light/dark preference.
 
 ---
 
@@ -79,6 +79,10 @@ src/
 │   └── excel/               The ONLY module that imports xlsx
 ├── types/                   Shared types
 └── styles/                  index.css
+
+public/extra-tools/          Five standalone HTML tools, shown in an iframe
+└── vendor/                  xlsx, jszip and PapaParse, vendored so the
+                             tools make no third-party requests
 ```
 
 Each feature owns its components, hooks and pure logic. **Features must not import from

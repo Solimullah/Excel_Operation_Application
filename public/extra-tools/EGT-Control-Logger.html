@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EGT Control Logger v2</title>
+<script src="./vendor/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #f9fafb;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --accent: #4f46e5;
+    --accent2: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #111827;
+    --muted: #6b7280;
+    --yellow-hl: #b45309;
+    --col-a: #7c3aed;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .logo {
+    width: 42px; height: 42px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  h1 span { color: var(--muted); font-weight: 300; }
+
+  /* Steps indicator */
+  .steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .step.active { color: var(--accent); border-color: var(--accent); background: #eef2ff; }
+  .step.done { color: var(--green); border-color: #a7f3d0; background: #ecfdf5; }
+  .step-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .step.active .step-num { background: var(--accent); color: white; }
+  .step.done .step-num { background: var(--green); color: white; }
+  .step-arrow { color: var(--border); padding: 0 6px; font-size: 16px; }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: #eef2ff; }
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon { font-size: 40px; margin-bottom: 12px; }
+  .drop-zone p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .drop-zone strong { color: var(--text); font-weight: 600; }
+
+  .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .file-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 16px;
+    font-size: 13px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .file-item .status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .file-item .status.ok { background: var(--green); }
+  .file-item .status.err { background: var(--red); }
+  .file-item .name { flex: 1; color: var(--text); }
+  .file-item .meta { color: var(--muted); font-size: 12px; }
+  .remove-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 16px; padding: 0 4px; transition: color 0.15s;
+  }
+  .remove-btn:hover { color: var(--red); }
+
+  /* Column A input section */
+  .col-a-section {
+    margin-top: 28px;
+  }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--muted);
+  }
+  .badge {
+    background: var(--accent); color: white;
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 12px; font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .badge-purple { background: var(--col-a); }
+
+  .col-a-hint {
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #6d28d9;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .col-a-hint .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .col-a-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: #f9fafb; color: var(--muted);
+    font-weight: 600; text-transform: uppercase;
+    font-size: 11px; letter-spacing: 0.5px;
+    padding: 10px 14px; text-align: left;
+    white-space: nowrap; border-bottom: 1px solid var(--border);
+  }
+  thead th.col-a-hdr { color: var(--col-a); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f9fafb; }
+  tbody td { padding: 8px 14px; font-family: 'IBM Plex Mono', monospace; color: var(--text); }
+  tbody td.hl { color: var(--yellow-hl); font-weight: 600; }
+  tbody td.sub { color: var(--accent2); }
+  tbody td.col-a-cell { background: #f5f3ff; }
+
+  .col-a-input {
+    background: #faf5ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 6px;
+    color: var(--col-a);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 10px;
+    width: 100px;
+    text-align: right;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .col-a-input:focus {
+    outline: none;
+    border-color: var(--col-a);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+  .col-a-input.missing {
+    border-color: var(--red);
+    background: #fef2f2;
+  }
+  .col-a-input.filled {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: var(--green);
+  }
+
+  .totals-row td {
+    background: #eef2ff !important;
+    font-weight: 600; color: var(--accent) !important;
+    border-top: 2px solid var(--accent) !important;
+  }
+
+  /* Preview section */
+  .preview-section { margin-top: 28px; }
+  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 18px; flex: 1; min-width: 120px;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; color: var(--accent); }
+  .stat-value.purple { color: var(--col-a); }
+
+  .month-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab {
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted);
+    transition: all 0.15s; font-family: 'IBM Plex Mono', monospace;
+  }
+  .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; border-radius: 8px; font-size: 14px;
+    font-weight: 600; font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #4338ca; transform: translateY(-1px); }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: #f3f4f6; }
+  .btn-purple { background: #7c3aed; color: white; }
+  .btn-purple:hover { background: #6d28d9; transform: translateY(-1px); }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--green); color: white;
+    padding: 12px 20px; border-radius: 8px;
+    font-weight: 600; font-size: 14px;
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.3s; pointer-events: none; z-index: 1000;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: var(--red); }
+
+  .error-msg {
+    background: #fef2f2; border: 1px solid var(--red);
+    border-radius: 8px; padding: 10px 16px;
+    color: #b91c1c; font-size: 13px; margin-top: 12px;
+  }
+
+  .progress-bar {
+    background: var(--border);
+    border-radius: 4px;
+    height: 4px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--col-a);
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">EGT</div>
+  <div>
+    <h1>Control Logger <span>/ BrutosDescartados v2</span></h1>
+  </div>
+</header>
+
+<!-- Steps -->
+<div class="steps">
+  <div class="step active" id="step1El">
+    <span class="step-num" id="sn1">1</span> Cargar archivos .txt
+  </div>
+  <span class="step-arrow">›</span>
+  <div class="step" id="step2El">
+    <span class="step-num" id="sn2">2</span> Introducir Columna A
+  </div>
+  <span class="step-arrow">›</span>
+  <div class="step" id="step3El">
+    <span class="step-num" id="sn3">3</span> Exportar Excel
+  </div>
+</div>
+
+<!-- STEP 1: Drop zone -->
+<div class="drop-zone" id="dropZone">
+  <input type="file" id="fileInput" multiple accept=".txt">
+  <div class="drop-icon">📂</div>
+  <p><strong>Arrastra los archivos .txt aquí</strong> o haz clic para seleccionarlos</p>
+  <p>Todos los archivos control_BBDD_T_EGT_*.txt de una vez</p>
+</div>
+
+<div id="errorMsg" class="error-msg" style="display:none"></div>
+<div class="file-list" id="fileList"></div>
+
+<!-- STEP 2: Column A input -->
+<div id="colASection" class="col-a-section" style="display:none">
+  <hr class="divider">
+  <div class="section-header">
+    <span class="section-title">📌 Paso 2 — Columna A (Registros del Sistema)</span>
+    <span class="badge badge-purple" id="colAProgress">0 / 0 completados</span>
+  </div>
+  <div class="col-a-hint">
+    <span class="icon">💡</span>
+    <span>Estos valores deben introducirse manualmente desde el sistema interno. Cada fila corresponde a un origen y fecha. La columna A se usará para calcular los ratios de la hoja Excel (E = D/A).</span>
+  </div>
+  <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0 de 0 valores introducidos</div>
+  <br>
+  <div class="col-a-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-a-hdr">Col A (sistema)</th>
+          <th>origen_registro</th>
+          <th>fecha_campana</th>
+          <th>registros_iniciales</th>
+          <th>robinson</th>
+          <th>sw_cartera</th>
+          <th>sw_en_uso</th>
+          <th>sw_otros</th>
+          <th>registros_finales</th>
+          <th>SUBPROVEEDOR</th>
+        </tr>
+      </thead>
+      <tbody id="colABody"></tbody>
+    </table>
+  </div>
+  <div class="actions">
+    <button class="btn btn-purple" onclick="proceedToExport()">
+      ✓ Confirmar y previsualizar
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">
+      🗑 Limpiar todo
+    </button>
+  </div>
+</div>
+
+<!-- STEP 3: Preview & export -->
+<div id="previewSection" class="preview-section" style="display:none">
+  <hr class="divider">
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="section-header">
+    <span class="section-title">Vista Previa Final</span>
+    <span class="badge" id="rowCount">0 registros</span>
+  </div>
+  <div class="month-tabs" id="monthTabs"></div>
+  <div class="col-a-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-a-hdr">Col A</th>
+          <th>origen_registro</th>
+          <th>fecha_campana</th>
+          <th>registros_iniciales</th>
+          <th>robinson</th>
+          <th>sw_cartera</th>
+          <th>sw_en_uso</th>
+          <th>sw_otros</th>
+          <th>registros_finales</th>
+          <th>SUBPROVEEDOR</th>
+          <th>% finales (D/A)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" id="exportBtn" onclick="exportExcel()">
+      ⬇ Exportar Excel (.xlsx)
+    </button>
+    <button class="btn btn-secondary" onclick="goBackToColA()">
+      ← Editar Columna A
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">
+      🗑 Limpiar todo
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLS = ['origen_registro','fecha_campana','registros_iniciales','robinson','sw_cartera','sw_en_uso','sw_otros','registros_finales','SUBPROVEEDOR'];
+let parsedData = [];
+let fileItems = {};
+let colAValues = {}; // index -> value
+
+// Steps
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`step${i}El`);
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+}
+
+// Drag & Drop
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
+
+function handleFiles(files) {
+  const txtFiles = Array.from(files).filter(f => f.name.endsWith('.txt'));
+  if (!txtFiles.length) { showError('Solo se aceptan archivos .txt'); return; }
+  hideError();
+  let pending = txtFiles.length;
+  txtFiles.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const rows = parseTxt(e.target.result, file.name);
+      fileItems[file.name] = { rows, status: rows.length > 0 ? 'ok' : 'err' };
+      if (--pending === 0) rebuildAll();
+    };
+    reader.readAsText(file);
+  });
+}
+
+function parseTxt(text, filename) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split('\t').map(h => h.trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split('\t').map(v => v.trim());
+    const row = {};
+    headers.forEach((h, idx) => row[h] = vals[idx] ?? '');
+    if (row.fecha_campana) rows.push(row);
+  }
+  return rows;
+}
+
+function rebuildAll() {
+  parsedData = [];
+  Object.values(fileItems).forEach(f => parsedData.push(...f.rows));
+  parsedData.sort((a, b) => {
+    const dA = parseInt(a.fecha_campana) || 0;
+    const dB = parseInt(b.fecha_campana) || 0;
+    if (dA !== dB) return dA - dB;
+    return (a.origen_registro || '').localeCompare(b.origen_registro || '');
+  });
+  colAValues = {};
+  renderFileList();
+  if (parsedData.length > 0) {
+    document.getElementById('colASection').style.display = 'block';
+    document.getElementById('previewSection').style.display = 'none';
+    renderColATable();
+    setStep(2);
+  }
+}
+
+function renderFileList() {
+  const el = document.getElementById('fileList');
+  el.innerHTML = '';
+  Object.entries(fileItems).forEach(([name, item]) => {
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    const pct = item.rows.length > 0 ? ` · ${item.rows.length} fila(s)` : ' · Sin datos';
+    div.innerHTML = `
+      <span class="status ${item.status}"></span>
+      <span class="name">${name}</span>
+      <span class="meta">${pct}</span>
+      <button class="remove-btn" onclick="removeFile('${name}')">✕</button>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function removeFile(name) {
+  delete fileItems[name];
+  rebuildAll();
+  if (!parsedData.length) {
+    document.getElementById('colASection').style.display = 'none';
+    document.getElementById('previewSection').style.display = 'none';
+    setStep(1);
+  }
+}
+
+// Column A table
+function renderColATable() {
+  const tbody = document.getElementById('colABody');
+  tbody.innerHTML = '';
+  parsedData.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    const existing = colAValues[idx] !== undefined ? colAValues[idx] : '';
+    const cls = existing !== '' ? 'filled' : '';
+    tr.innerHTML = `
+      <td class="col-a-cell">
+        <input type="number" class="col-a-input ${cls}" id="cola_${idx}"
+          value="${existing}" min="0" placeholder="0"
+          oninput="onColAInput(${idx}, this)"
+          onkeydown="onColAKey(event, ${idx})">
+      </td>
+      <td>${r.origen_registro || ''}</td>
+      <td>${r.fecha_campana || ''}</td>
+      <td>${r.registros_iniciales || ''}</td>
+      <td>${r.robinson || ''}</td>
+      <td>${r.sw_cartera || ''}</td>
+      <td>${r.sw_en_uso || ''}</td>
+      <td>${r.sw_otros || ''}</td>
+      <td class="hl">${r.registros_finales || ''}</td>
+      <td class="sub">${r.SUBPROVEEDOR || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateColAProgress();
+}
+
+function onColAInput(idx, input) {
+  const val = input.value.trim();
+  if (val !== '') {
+    colAValues[idx] = parseInt(val) || 0;
+    input.classList.remove('missing');
+    input.classList.add('filled');
+  } else {
+    delete colAValues[idx];
+    input.classList.remove('filled', 'missing');
+  }
+  updateColAProgress();
+}
+
+function onColAKey(e, idx) {
+  // Tab / Enter: move to next row
+  if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
+    e.preventDefault();
+    const next = document.getElementById(`cola_${idx + 1}`);
+    if (next) next.focus();
+  }
+  if (e.key === 'Tab' && e.shiftKey) {
+    e.preventDefault();
+    const prev = document.getElementById(`cola_${idx - 1}`);
+    if (prev) prev.focus();
+  }
+}
+
+function updateColAProgress() {
+  const total = parsedData.length;
+  const filled = Object.keys(colAValues).length;
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  document.getElementById('colAProgress').textContent = `${filled} / ${total} completados`;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${filled} de ${total} valores introducidos`;
+}
+
+function proceedToExport() {
+  const missing = parsedData.map((_, i) => i).filter(i => colAValues[i] === undefined);
+  if (missing.length > 0) {
+    // Highlight missing
+    missing.forEach(i => {
+      const inp = document.getElementById(`cola_${i}`);
+      if (inp) inp.classList.add('missing');
+    });
+    showToast(`⚠ Faltan ${missing.length} valores en Columna A`, true);
+    return;
+  }
+  document.getElementById('colASection').style.display = 'none';
+  document.getElementById('previewSection').style.display = 'block';
+  setStep(3);
+  renderPreview();
+}
+
+function goBackToColA() {
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('colASection').style.display = 'block';
+  setStep(2);
+}
+
+// Preview
+let activeMonth = null;
+
+function getMonthKey(fecha) {
+  const s = String(fecha);
+  return s.length === 8 ? s.slice(0, 6) : 'unknown';
+}
+
+function renderPreview() {
+  const total_ini = parsedData.reduce((s, r) => s + (parseInt(r.registros_iniciales) || 0), 0);
+  const total_fin = parsedData.reduce((s, r) => s + (parseInt(r.registros_finales) || 0), 0);
+  const total_a   = Object.values(colAValues).reduce((s, v) => s + v, 0);
+  const pct = total_ini > 0 ? ((total_fin / total_ini) * 100).toFixed(1) : '0';
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="stat-label">Archivos cargados</div><div class="stat-value">${Object.keys(fileItems).length}</div></div>
+    <div class="stat"><div class="stat-label">Total Col A (sistema)</div><div class="stat-value purple">${total_a.toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-label">Total Iniciales (D)</div><div class="stat-value">${total_ini.toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-label">Total Finales (I)</div><div class="stat-value">${total_fin.toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-label">% Finales / Iniciales</div><div class="stat-value">${pct}%</div></div>
+  `;
+
+  const months = [...new Set(parsedData.map(r => getMonthKey(r.fecha_campana)))].sort();
+  if (!activeMonth || !months.includes(activeMonth)) activeMonth = 'all';
+
+  const tabsEl = document.getElementById('monthTabs');
+  tabsEl.innerHTML = `<div class="tab ${activeMonth==='all'?'active':''}" onclick="setMonth('all')">Todos</div>`;
+  months.forEach(m => {
+    const label = m.length === 6 ? `${m.slice(0,4)}-${m.slice(4,6)}` : m;
+    tabsEl.innerHTML += `<div class="tab ${activeMonth===m?'active':''}" onclick="setMonth('${m}')">${label}</div>`;
+  });
+
+  renderTable();
+}
+
+function setMonth(m) { activeMonth = m; renderPreview(); }
+
+function renderTable() {
+  const filtered = activeMonth === 'all'
+    ? parsedData.map((r, i) => ({...r, _idx: i}))
+    : parsedData.map((r, i) => ({...r, _idx: i})).filter(r => getMonthKey(r.fecha_campana) === activeMonth);
+
+  document.getElementById('rowCount').textContent = `${filtered.length} registro${filtered.length !== 1 ? 's' : ''}`;
+
+  const totals = { a: 0, registros_iniciales: 0, robinson: 0, sw_cartera: 0, sw_en_uso: 0, sw_otros: 0, registros_finales: 0 };
+  filtered.forEach(r => {
+    totals.a += colAValues[r._idx] || 0;
+    ['registros_iniciales','robinson','sw_cartera','sw_en_uso','sw_otros','registros_finales']
+      .forEach(k => { totals[k] += parseInt(r[k]) || 0; });
+  });
+  const pctTot = totals.a > 0
+    ? ((totals.registros_iniciales / totals.a) * 100).toFixed(1) + '%' : '-';
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  filtered.forEach(r => {
+    const colA = colAValues[r._idx] || 0;
+    const ini  = parseInt(r.registros_iniciales) || 0;
+    const pct  = colA > 0 ? ((ini / colA) * 100).toFixed(1) + '%' : '-';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--col-a);font-weight:600">${colA.toLocaleString()}</td>
+      <td>${r.origen_registro || ''}</td>
+      <td>${r.fecha_campana || ''}</td>
+      <td>${r.registros_iniciales || ''}</td>
+      <td>${r.robinson || ''}</td>
+      <td>${r.sw_cartera || ''}</td>
+      <td>${r.sw_en_uso || ''}</td>
+      <td>${r.sw_otros || ''}</td>
+      <td class="hl">${r.registros_finales || ''}</td>
+      <td class="sub">${r.SUBPROVEEDOR || ''}</td>
+      <td>${pct}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const tr = document.createElement('tr');
+  tr.className = 'totals-row';
+  tr.innerHTML = `
+    <td>${totals.a.toLocaleString()}</td>
+    <td>TOTAL</td><td>—</td>
+    <td>${totals.registros_iniciales.toLocaleString()}</td>
+    <td>${totals.robinson.toLocaleString()}</td>
+    <td>${totals.sw_cartera.toLocaleString()}</td>
+    <td>${totals.sw_en_uso.toLocaleString()}</td>
+    <td>${totals.sw_otros.toLocaleString()}</td>
+    <td>${totals.registros_finales.toLocaleString()}</td>
+    <td>—</td>
+    <td>${pctTot}</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// Export
+function exportExcel() {
+  if (!parsedData.length) return;
+
+  const wb = XLSX.utils.book_new();
+  const toNum = v => (v === '' || v === null || v === undefined) ? null : (parseInt(v) || null);
+  const NUM_FMT = '#,##0';
+  const PCT_FMT = '0.0%';
+
+  const byMonth = {};
+  parsedData.forEach((r, i) => {
+    const key = getMonthKey(r.fecha_campana);
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push({...r, _idx: i});
+  });
+
+  Object.entries(byMonth).sort().forEach(([monthKey, rows]) => {
+    const year = monthKey.slice(0, 4);
+    const month = monthKey.slice(4, 6);
+    const sheetName = `${year} ${month}`;
+
+    rows.sort((a, b) => parseInt(a.fecha_campana) - parseInt(b.fecha_campana));
+
+    const dataStart = 4;
+    const dataEnd = dataStart + rows.length - 1;
+
+    // Compute totals
+    let sumA = 0, sumD = 0, sumF = 0, sumH = 0, sumJ = 0, sumL = 0, sumN = 0;
+    rows.forEach(r => {
+      sumA += colAValues[r._idx] || 0;
+      sumD += toNum(r.registros_iniciales) || 0;
+      sumF += toNum(r.robinson) || 0;
+      sumH += toNum(r.sw_cartera) || 0;
+      sumJ += toNum(r.sw_en_uso) || 0;
+      sumL += toNum(r.sw_otros) || 0;
+      sumN += toNum(r.registros_finales) || 0;
+    });
+
+    function nc(v, z, bold) {
+      const c = { t: 'n', v, z };
+      if (bold) c.s = { font: { bold: true } };
+      return c;
+    }
+
+    const ws = {};
+
+    // Row 2: summary
+    ws['A2'] = { ...nc(sumA, NUM_FMT, true), s: { font: { bold: true }, numFmt: NUM_FMT } };
+    ws['D2'] = nc(sumD, NUM_FMT, true);
+    ws['E2'] = nc(sumD > 0 ? sumD / sumA : 0, PCT_FMT, true);
+    ws['F2'] = nc(sumF, NUM_FMT, true);
+    ws['G2'] = nc(sumD > 0 ? sumF / sumD : 0, PCT_FMT, true);
+    ws['H2'] = nc(sumH, NUM_FMT, true);
+    ws['I2'] = nc(sumD > 0 ? sumH / sumD : 0, PCT_FMT, true);
+    ws['J2'] = nc(sumJ, NUM_FMT, true);
+    ws['K2'] = nc(sumD > 0 ? sumJ / sumD : 0, PCT_FMT, true);
+    ws['L2'] = nc(sumL, NUM_FMT, true);
+    ws['M2'] = nc(sumD > 0 ? sumL / sumD : 0, PCT_FMT, true);
+    ws['N2'] = nc(sumN, NUM_FMT, true);
+    ws['O2'] = nc(sumD > 0 ? sumN / sumD : 0, PCT_FMT, true);
+
+    // Row 3: headers
+    const hdrs = [
+      ['A3','col_sistema'],['B3','origen_registro'],['C3','fecha_campana'],
+      ['D3','registros_iniciales'],['E3','% D/A'],
+      ['F3','robinson'],['G3','% robinson'],
+      ['H3','sw_cartera'],['I3','% sw_cartera'],
+      ['J3','sw_en_uso'],['K3','% sw_en_uso'],
+      ['L3','sw_otros'],['M3','% sw_otros'],
+      ['N3','registros_finales'],['O3','% finales'],
+      ['P3','SUBPROVEEDOR']
+    ];
+    hdrs.forEach(([addr, val]) => {
+      ws[addr] = { t: 's', v: val, s: { font: { bold: true } } };
+    });
+
+    // Data rows
+    rows.forEach((r, idx) => {
+      const er = dataStart + idx;
+      const colA = colAValues[r._idx] || 0;
+      const d = toNum(r.registros_iniciales) || 0;
+      const f = toNum(r.robinson) || 0;
+      const h = toNum(r.sw_cartera) || 0;
+      const j = toNum(r.sw_en_uso) || 0;
+      const l = toNum(r.sw_otros) || 0;
+      const n = toNum(r.registros_finales) || 0;
+
+      ws[`A${er}`] = nc(colA, NUM_FMT);
+      if (r.origen_registro) ws[`B${er}`] = { t: 's', v: r.origen_registro };
+      ws[`C${er}`] = { t: 'n', v: parseInt(r.fecha_campana) };
+      ws[`D${er}`] = nc(d, NUM_FMT);
+      ws[`E${er}`] = nc(colA > 0 ? d / colA : 0, PCT_FMT);  // D/A ratio
+      ws[`F${er}`] = nc(f, NUM_FMT);
+      ws[`G${er}`] = nc(d > 0 ? f / d : 0, PCT_FMT);
+      ws[`H${er}`] = nc(h, NUM_FMT);
+      ws[`I${er}`] = nc(d > 0 ? h / d : 0, PCT_FMT);
+      ws[`J${er}`] = nc(j, NUM_FMT);
+      ws[`K${er}`] = nc(d > 0 ? j / d : 0, PCT_FMT);
+      ws[`L${er}`] = nc(l, NUM_FMT);
+      ws[`M${er}`] = nc(d > 0 ? l / d : 0, PCT_FMT);
+      ws[`N${er}`] = nc(n, NUM_FMT);
+      ws[`O${er}`] = nc(d > 0 ? n / d : 0, PCT_FMT);
+      if (r.SUBPROVEEDOR) ws[`P${er}`] = { t: 's', v: r.SUBPROVEEDOR };
+    });
+
+    ws['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 1 }, e: { c: 15, r: dataEnd - 1 } });
+    ws['!cols'] = [
+      { wch: 12 },  // A col_sistema
+      { wch: 23 },  // B origen_registro
+      { wch: 14 },  // C fecha_campana
+      { wch: 20 },  // D registros_iniciales
+      { wch: 10 },  // E % D/A
+      { wch: 12 },  // F robinson
+      { wch: 10 },  // G %
+      { wch: 12 },  // H sw_cartera
+      { wch: 10 },  // I %
+      { wch: 12 },  // J sw_en_uso
+      { wch: 10 },  // K %
+      { wch: 12 },  // L sw_otros
+      { wch: 10 },  // M %
+      { wch: 18 },  // N registros_finales
+      { wch: 10 },  // O %
+      { wch: 15 },  // P SUBPROVEEDOR
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0,10).replace(/-/g,'');
+  const filename = `BrutosDescartados_${dateStr}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showToast(`✓ ${filename} generado`);
+}
+
+function clearAll() {
+  parsedData = []; fileItems = {}; colAValues = {};
+  document.getElementById('fileList').innerHTML = '';
+  document.getElementById('colASection').style.display = 'none';
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  hideError();
+  setStep(1);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

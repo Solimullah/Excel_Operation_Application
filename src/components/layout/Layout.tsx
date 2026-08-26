@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { AppTab } from '@/types';
+import { AppTab, EXTRA_TOOLS } from '@/types';
 import {
   FileSpreadsheet,
   Search,
@@ -10,6 +10,11 @@ import {
   GitCompare,
   Combine,
   Sparkles,
+  Hash,
+  Scissors,
+  Layers,
+  ClipboardList,
+  ScanSearch,
   Sun,
   Moon
 } from 'lucide-react';
@@ -136,6 +141,44 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             onClick={onTabChange}
           />
 
+          <div className="pt-4 pb-2">
+            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Extra Tools</p>
+          </div>
+          <NavItem
+            tab={AppTab.EXTRA_COUNTER}
+            active={activeTab === AppTab.EXTRA_COUNTER}
+            icon={Hash}
+            label={EXTRA_TOOLS[0].name}
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.EXTRA_SPLITTER}
+            active={activeTab === AppTab.EXTRA_SPLITTER}
+            icon={Scissors}
+            label={EXTRA_TOOLS[1].name}
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.EXTRA_COMBINER}
+            active={activeTab === AppTab.EXTRA_COMBINER}
+            icon={Layers}
+            label={EXTRA_TOOLS[2].name}
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.EXTRA_EGT_LOGGER}
+            active={activeTab === AppTab.EXTRA_EGT_LOGGER}
+            icon={ClipboardList}
+            label={EXTRA_TOOLS[3].name}
+            onClick={onTabChange}
+          />
+          <NavItem
+            tab={AppTab.EXTRA_SMART_LOOKUP}
+            active={activeTab === AppTab.EXTRA_SMART_LOOKUP}
+            icon={ScanSearch}
+            label={EXTRA_TOOLS[4].name}
+            onClick={onTabChange}
+          />
         </div>
 
         <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">

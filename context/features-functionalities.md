@@ -25,10 +25,9 @@ Legend: ✅ implemented · 🟡 partial / known gap · 🔵 not built
   everywhere downstream — see `system-rules.md` §2.
 - 🟡 **Errors are a single `alert()`** covering the whole batch. If one file in five fails,
   the message names none of them and the other four still load.
-- 🟡 **No duplicate detection.** Uploading the same file twice yields two independent
-  entries with different IDs.
-- 🔵 **No drag-and-drop.** The upload card looks like a drop zone but is a styled `<label>`
-  wrapping a hidden `<input type="file">`. There is no `onDrop` handler.
+- ✅ **Drag-and-drop upload**, with the extension checked before the file is read.
+- ✅ **Duplicate filename warning** — adding a file whose name matches one already loaded
+  asks for confirmation first.
 - 🔵 **No file-size limit, no row cap, no progress indication** beyond a "Processing
   Files…" label on the button.
 
@@ -250,7 +249,14 @@ downloaded.
   `excelfile-operations`.
 - 🟡 **Off-brand styling.** Stock Tailwind indigo/gray with shadows, against an eGENTIC
   guide that permits neither. See `coding-conventions.md` and `project-memory.md` §4.
-- 🔵 **No dark mode, no responsive sidebar** (fixed `w-64`, `ml-64`), **no keyboard
+- ✅ **Dark mode** — sidebar toggle, saved to `localStorage` under `excelai-theme`,
+  defaulting to the system preference. An inline script in `index.html` applies it before
+  first paint so there is no flash of white.
+- ✅ **Five Extra Tools** — SNTS-Counter, File Splitter, SNTS-Combiner, EGT Control Logger
+  and Smart Lookup. Standalone HTML apps under `public/extra-tools`, shown in a sandboxed
+  iframe via `ExtraToolFrame`. Their xlsx / jszip / PapaParse copies are vendored locally,
+  so they make no third-party requests.
+- 🔵 **No responsive sidebar** (fixed `w-64`, `ml-64`), **no keyboard
   shortcuts**, and almost **no accessibility work**: there is not a single `aria-*`
   attribute in the codebase, no focus management and no live regions. The only ARIA present
   is three `role` attributes — `menu`/`menuitem` in `ExportMenu` and `group` in

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text File Combiner</title>
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #111827;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-mode {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .mode-btn:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+
+        .mode-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: transparent;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .upload-area:hover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #e0e7ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #4f46e5;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #6b7280;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .column-options {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .column-options.show {
+            display: block;
+        }
+
+        .option-section {
+            margin-bottom: 20px;
+        }
+
+        .option-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-title input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .column-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .column-item {
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+
+        .column-item:hover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+
+        .column-item.selected {
+            background: #4f46e5;
+            color: white;
+            border-color: transparent;
+        }
+
+        .column-item input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .column-item input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        .format-selector {
+            margin: 25px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .format-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .format-btn:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+
+        .format-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: transparent;
+        }
+
+        .process-btn {
+            width: 100%;
+            padding: 15px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .process-btn:hover:not(:disabled) {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 70, 229, 0.35);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #eef2ff;
+            border-radius: 8px;
+            border-left: 4px solid #4f46e5;
+            display: none;
+        }
+
+        .stats.show {
+            display: block;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .stats-label {
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .stats-value {
+            color: #111827;
+            font-weight: bold;
+        }
+
+        .stats-value.duplicate {
+            color: #e67e22;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .disabled-section {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 File Combiner</h1>
+        <p class="subtitle">Combine files with phone number formatting & duplicate detection</p>
+
+        <div class="upload-mode">
+            <button class="mode-btn active" data-mode="zip">📁 Upload ZIP</button>
+            <button class="mode-btn" data-mode="files">📄 Select Multiple Files</button>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text" id="uploadText">Click to upload or drag & drop</div>
+            <div class="upload-hint" id="uploadHint">ZIP file containing text files</div>
+            <input type="file" id="fileInput" accept=".zip">
+        </div>
+
+        <div class="file-info" id="fileInfo"></div>
+
+        <div class="column-options" id="columnOptions">
+            <div class="option-section">
+                <div class="option-title">📱 Add "0" prefix to phone numbers</div>
+                <div class="hint-text">Select column(s) where you want to add "0" at the beginning (e.g., 630119142 → 0630119142)</div>
+                <div class="column-list" id="zeroPrefixColumns"></div>
+            </div>
+
+            <div class="option-section">
+                <label class="option-title">
+                    <input type="checkbox" id="enableDuplicateCheck">
+                    🔍 Check for duplicate rows
+                </label>
+                <div id="duplicateCheckSection" class="disabled-section">
+                    <div class="hint-text">Select which column to use for detecting duplicates</div>
+                    <div class="column-list" id="duplicateCheckColumns"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="format-selector">
+            <button class="format-btn active" data-format="csv">CSV</button>
+            <button class="format-btn" data-format="excel">Excel</button>
+        </div>
+
+        <button class="process-btn" id="processBtn" disabled>Combine Files</button>
+
+        <div class="stats" id="stats"></div>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="./vendor/jszip.min.js"></script>
+    <script>
+        let selectedFiles = [];
+        let selectedFormat = 'csv';
+        let uploadMode = 'zip';
+        let columnHeaders = [];
+        let selectedZeroPrefixColumns = new Set();
+        let selectedDuplicateColumn = null;
+        let duplicateCheckEnabled = false;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const fileInfo = document.getElementById('fileInfo');
+        const statsDiv = document.getElementById('stats');
+        const status = document.getElementById('status');
+        const formatBtns = document.querySelectorAll('.format-btn');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const uploadText = document.getElementById('uploadText');
+        const uploadHint = document.getElementById('uploadHint');
+        const columnOptions = document.getElementById('columnOptions');
+        const zeroPrefixColumnsDiv = document.getElementById('zeroPrefixColumns');
+        const duplicateCheckColumnsDiv = document.getElementById('duplicateCheckColumns');
+        const enableDuplicateCheckbox = document.getElementById('enableDuplicateCheck');
+        const duplicateCheckSection = document.getElementById('duplicateCheckSection');
+
+        // Enable/disable duplicate check section
+        enableDuplicateCheckbox.addEventListener('change', (e) => {
+            duplicateCheckEnabled = e.target.checked;
+            if (duplicateCheckEnabled) {
+                duplicateCheckSection.classList.remove('disabled-section');
+            } else {
+                duplicateCheckSection.classList.add('disabled-section');
+                selectedDuplicateColumn = null;
+                // Deselect all radio buttons
+                document.querySelectorAll('#duplicateCheckColumns input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                });
+            }
+        });
+
+        // Mode selection
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                uploadMode = btn.dataset.mode;
+                
+                if (uploadMode === 'zip') {
+                    fileInput.setAttribute('accept', '.zip');
+                    fileInput.removeAttribute('multiple');
+                    uploadText.textContent = 'Click to upload or drag & drop';
+                    uploadHint.textContent = 'ZIP file containing text files';
+                } else {
+                    fileInput.setAttribute('accept', '.txt,.csv');
+                    fileInput.setAttribute('multiple', 'multiple');
+                    uploadText.textContent = 'Click to select multiple files';
+                    uploadHint.textContent = 'Select multiple text/CSV files';
+                }
+                
+                // Reset
+                resetForm();
+            });
+        });
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (uploadMode === 'zip' && e.dataTransfer.files.length > 0) {
+                handleFileSelect([e.dataTransfer.files[0]]);
+            } else if (uploadMode === 'files') {
+                handleFileSelect(Array.from(e.dataTransfer.files));
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(Array.from(e.target.files));
+            }
+        });
+
+        // Format selection
+        formatBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                formatBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFormat = btn.dataset.format;
+            });
+        });
+
+        function resetForm() {
+            selectedFiles = [];
+            columnHeaders = [];
+            selectedZeroPrefixColumns.clear();
+            selectedDuplicateColumn = null;
+            duplicateCheckEnabled = false;
+            processBtn.disabled = true;
+            fileInfo.classList.remove('show');
+            columnOptions.classList.remove('show');
+            statsDiv.classList.remove('show');
+            enableDuplicateCheckbox.checked = false;
+            duplicateCheckSection.classList.add('disabled-section');
+            hideStatus();
+        }
+
+        async function handleFileSelect(files) {
+            if (uploadMode === 'zip') {
+                if (!files[0].name.endsWith('.zip')) {
+                    showStatus('Please select a ZIP file', 'error');
+                    return;
+                }
+                selectedFiles = files;
+                fileInfo.textContent = `📄 Selected: ${files[0].name} (${(files[0].size / 1024).toFixed(2)} KB)`;
+                
+                // Read first file to get column headers
+                await extractColumnsFromZip(files[0]);
+            } else {
+                const textFiles = files.filter(f => f.name.endsWith('.txt') || f.name.endsWith('.csv'));
+                if (textFiles.length === 0) {
+                    showStatus('Please select text or CSV files', 'error');
+                    return;
+                }
+                selectedFiles = textFiles;
+                fileInfo.textContent = `📄 Selected: ${textFiles.length} file(s)`;
+                
+                // Read first file to get column headers
+                await extractColumnsFromFiles(textFiles);
+            }
+            
+            fileInfo.classList.add('show');
+            hideStatus();
+        }
+
+        async function extractColumnsFromZip(zipFile) {
+            try {
+                const zip = new JSZip();
+                const zipContents = await zip.loadAsync(zipFile);
+                
+                const txtFiles = Object.keys(zipContents.files)
+                    .filter(name => (name.endsWith('.txt') || name.endsWith('.csv')) && !name.startsWith('__MACOSX'))
+                    .sort();
+
+                if (txtFiles.length === 0) {
+                    showStatus('No text files found in the zip!', 'error');
+                    return;
+                }
+
+                // Read first file
+                const content = await zipContents.files[txtFiles[0]].async('string');
+                const lines = content.split(/\r?\n/).filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    showStatus('First file is empty!', 'error');
+                    return;
+                }
+
+                parseHeaderLine(lines[0]);
+            } catch (error) {
+                showStatus(`Error reading ZIP: ${error.message}`, 'error');
+            }
+        }
+
+        async function extractColumnsFromFiles(files) {
+            try {
+                const content = await files[0].text();
+                const lines = content.split(/\r?\n/).filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    showStatus('First file is empty!', 'error');
+                    return;
+                }
+
+                parseHeaderLine(lines[0]);
+            } catch (error) {
+                showStatus(`Error reading file: ${error.message}`, 'error');
+            }
+        }
+
+        function parseHeaderLine(headerLine) {
+            // Detect delimiter
+            let delimiter = ',';
+            if (headerLine.includes('\t')) {
+                delimiter = '\t';
+            } else if (headerLine.includes(';')) {
+                delimiter = ';';
+            } else if (headerLine.includes('|')) {
+                delimiter = '|';
+            }
+
+            // Parse headers
+            columnHeaders = headerLine.split(delimiter).map(h => h.trim());
+            
+            // Display column options
+            displayColumnOptions();
+            
+            processBtn.disabled = false;
+            columnOptions.classList.add('show');
+        }
+
+        function displayColumnOptions() {
+            // Clear existing
+            zeroPrefixColumnsDiv.innerHTML = '';
+            duplicateCheckColumnsDiv.innerHTML = '';
+            selectedZeroPrefixColumns.clear();
+            selectedDuplicateColumn = null;
+
+            // Create checkboxes for zero prefix columns
+            columnHeaders.forEach((header, index) => {
+                // Zero prefix column (checkbox - multiple selection)
+                const zeroDiv = document.createElement('div');
+                zeroDiv.className = 'column-item';
+                zeroDiv.innerHTML = `
+                    <input type="checkbox" id="zero_${index}" value="${index}">
+                    <label for="zero_${index}" style="cursor: pointer; flex: 1;">${header || `Column ${index + 1}`}</label>
+                `;
+                
+                zeroDiv.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedZeroPrefixColumns.add(index);
+                        zeroDiv.classList.add('selected');
+                    } else {
+                        selectedZeroPrefixColumns.delete(index);
+                        zeroDiv.classList.remove('selected');
+                    }
+                });
+                
+                zeroDiv.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        const checkbox = zeroDiv.querySelector('input');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                zeroPrefixColumnsDiv.appendChild(zeroDiv);
+
+                // Duplicate check column (radio - single selection)
+                const dupDiv = document.createElement('div');
+                dupDiv.className = 'column-item';
+                dupDiv.innerHTML = `
+                    <input type="radio" name="duplicateColumn" id="dup_${index}" value="${index}">
+                    <label for="dup_${index}" style="cursor: pointer; flex: 1;">${header || `Column ${index + 1}`}</label>
+                `;
+                
+                dupDiv.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedDuplicateColumn = index;
+                        // Remove selected class from all
+                        document.querySelectorAll('#duplicateCheckColumns .column-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        // Add to current
+                        dupDiv.classList.add('selected');
+                    }
+                });
+                
+                dupDiv.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        const radio = dupDiv.querySelector('input');
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                });
+                
+                duplicateCheckColumnsDiv.appendChild(dupDiv);
+            });
+        }
+
+        processBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<span class="spinner"></span>Processing...';
+            statsDiv.classList.remove('show');
+
+            try {
+                let headerRow = null;
+                let dataRows = [];
+                let fileCount = 0;
+                let totalLinesRead = 0;
+                let delimiter = ',';
+                
+                // Track duplicates if enabled
+                let rowSet = new Set();
+                let duplicateCount = 0;
+
+                if (uploadMode === 'zip') {
+                    const zip = new JSZip();
+                    const zipContents = await zip.loadAsync(selectedFiles[0]);
+                    
+                    const txtFiles = Object.keys(zipContents.files)
+                        .filter(name => (name.endsWith('.txt') || name.endsWith('.csv')) && !name.startsWith('__MACOSX'))
+                        .sort();
+
+                    if (txtFiles.length === 0) {
+                        showStatus('No text files found in the zip!', 'error');
+                        resetButton();
+                        return;
+                    }
+
+                    fileCount = txtFiles.length;
+
+                    for (let i = 0; i < txtFiles.length; i++) {
+                        const content = await zipContents.files[txtFiles[i]].async('string');
+                        const lines = content.split(/\r?\n/).filter(line => line.trim());
+                        
+                        totalLinesRead += lines.length;
+                        
+                        if (lines.length === 0) continue;
+
+                        if (i === 0) {
+                            // First file: extract header and detect delimiter
+                            headerRow = lines[0];
+                            delimiter = detectDelimiter(headerRow);
+                            
+                            // Process data rows from first file
+                            for (let j = 1; j < lines.length; j++) {
+                                const row = lines[j];
+                                
+                                // Check for duplicates if enabled
+                                if (duplicateCheckEnabled && selectedDuplicateColumn !== null) {
+                                    const cells = row.split(delimiter);
+                                    const checkValue = cells[selectedDuplicateColumn] || '';
+                                    if (rowSet.has(checkValue)) {
+                                        duplicateCount++;
+                                    } else {
+                                        rowSet.add(checkValue);
+                                    }
+                                }
+                                
+                                dataRows.push(row);
+                            }
+                        } else {
+                            // Skip header from subsequent files, process all data rows
+                            for (let j = 1; j < lines.length; j++) {
+                                const row = lines[j];
+                                
+                                // Check for duplicates if enabled
+                                if (duplicateCheckEnabled && selectedDuplicateColumn !== null) {
+                                    const cells = row.split(delimiter);
+                                    const checkValue = cells[selectedDuplicateColumn] || '';
+                                    if (rowSet.has(checkValue)) {
+                                        duplicateCount++;
+                                    } else {
+                                        rowSet.add(checkValue);
+                                    }
+                                }
+                                
+                                dataRows.push(row);
+                            }
+                        }
+                    }
+                } else {
+                    // Multiple files mode
+                    fileCount = selectedFiles.length;
+
+                    for (let i = 0; i < selectedFiles.length; i++) {
+                        const content = await selectedFiles[i].text();
+                        const lines = content.split(/\r?\n/).filter(line => line.trim());
+                        
+                        totalLinesRead += lines.length;
+                        
+                        if (lines.length === 0) continue;
+
+                        if (i === 0) {
+                            // First file: extract header and detect delimiter
+                            headerRow = lines[0];
+                            delimiter = detectDelimiter(headerRow);
+                            
+                            // Process data rows from first file
+                            for (let j = 1; j < lines.length; j++) {
+                                const row = lines[j];
+                                
+                                // Check for duplicates if enabled
+                                if (duplicateCheckEnabled && selectedDuplicateColumn !== null) {
+                                    const cells = row.split(delimiter);
+                                    const checkValue = cells[selectedDuplicateColumn] || '';
+                                    if (rowSet.has(checkValue)) {
+                                        duplicateCount++;
+                                    } else {
+                                        rowSet.add(checkValue);
+                                    }
+                                }
+                                
+                                dataRows.push(row);
+                            }
+                        } else {
+                            // Skip header from subsequent files, process all data rows
+                            for (let j = 1; j < lines.length; j++) {
+                                const row = lines[j];
+                                
+                                // Check for duplicates if enabled
+                                if (duplicateCheckEnabled && selectedDuplicateColumn !== null) {
+                                    const cells = row.split(delimiter);
+                                    const checkValue = cells[selectedDuplicateColumn] || '';
+                                    if (rowSet.has(checkValue)) {
+                                        duplicateCount++;
+                                    } else {
+                                        rowSet.add(checkValue);
+                                    }
+                                }
+                                
+                                dataRows.push(row);
+                            }
+                        }
+                    }
+                }
+
+                // Add "0" prefix to selected columns
+                if (selectedZeroPrefixColumns.size > 0) {
+                    dataRows = addZeroPrefixToColumns(dataRows, delimiter);
+                }
+
+                // Combine header and data
+                const allRows = [headerRow, ...dataRows];
+
+                const uniqueDataRows = duplicateCheckEnabled ? rowSet.size : 'N/A';
+
+                // Show statistics
+                showStats(fileCount, totalLinesRead, dataRows.length, uniqueDataRows, duplicateCount, duplicateCheckEnabled);
+
+                if (selectedFormat === 'csv') {
+                    downloadCSV(allRows, delimiter);
+                } else {
+                    downloadExcel(allRows, delimiter);
+                }
+
+                let statusMsg = `✓ Successfully combined ${fileCount} files! Output contains ${dataRows.length} data rows`;
+                if (duplicateCheckEnabled) {
+                    statusMsg += ` (${uniqueDataRows} unique, ${duplicateCount} duplicates)`;
+                }
+                showStatus(statusMsg, 'success');
+                resetButton();
+
+            } catch (error) {
+                console.error(error);
+                showStatus(`Error: ${error.message}`, 'error');
+                resetButton();
+            }
+        });
+
+        function detectDelimiter(line) {
+            if (line.includes('\t')) return '\t';
+            if (line.includes(';')) return ';';
+            if (line.includes('|')) return '|';
+            return ',';
+        }
+
+        function addZeroPrefixToColumns(rows, delimiter) {
+            return rows.map(row => {
+                const cells = row.split(delimiter);
+                selectedZeroPrefixColumns.forEach(colIndex => {
+                    if (cells[colIndex] !== undefined) {
+                        cells[colIndex] = '0' + cells[colIndex].trim();
+                    }
+                });
+                return cells.join(delimiter);
+            });
+        }
+
+        function showStats(files, totalLines, outputRows, uniqueRows, duplicates, showDuplicates) {
+            let statsHTML = `
+                <div class="stats-item">
+                    <span class="stats-label">Files Processed:</span>
+                    <span class="stats-value">${files}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Total Lines Read:</span>
+                    <span class="stats-value">${totalLines.toLocaleString()}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Header Row:</span>
+                    <span class="stats-value">1</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Data Rows in Output:</span>
+                    <span class="stats-value">${outputRows.toLocaleString()}</span>
+                </div>
+            `;
+            
+            if (showDuplicates) {
+                statsHTML += `
+                    <div class="stats-item">
+                        <span class="stats-label">Unique Data Rows:</span>
+                        <span class="stats-value">${uniqueRows.toLocaleString()}</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Duplicate Rows:</span>
+                        <span class="stats-value duplicate">${duplicates.toLocaleString()}</span>
+                    </div>
+                `;
+            }
+            
+            statsDiv.innerHTML = statsHTML;
+            statsDiv.classList.add('show');
+        }
+
+        function downloadCSV(rows, delimiter) {
+            // Parse and reconstruct to ensure proper CSV format
+            const parsedData = rows.map(row => {
+                return row.split(delimiter).map(cell => {
+                    cell = cell.trim();
+                    // Quote cells that contain commas, quotes, or newlines
+                    if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+                        return `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                });
+            });
+            
+            const csvContent = parsedData.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'combined_output.csv';
+            link.click();
+        }
+
+        function downloadExcel(rows, delimiter) {
+            // Parse rows properly with detected delimiter
+            const data = rows.map(row => {
+                return row.split(delimiter).map(cell => {
+                    cell = cell.trim();
+                    // Remove quotes if the cell is wrapped in them
+                    if (cell.startsWith('"') && cell.endsWith('"')) {
+                        return cell.slice(1, -1).replace(/""/g, '"');
+                    }
+                    return cell;
+                });
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Auto-size columns
+            const colWidths = [];
+            data.forEach(row => {
+                row.forEach((cell, i) => {
+                    const cellLength = String(cell).length;
+                    if (!colWidths[i] || cellLength > colWidths[i]) {
+                        colWidths[i] = Math.min(cellLength + 2, 50);
+                    }
+                });
+            });
+            ws['!cols'] = colWidths.map(w => ({ wch: w }));
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Combined Data');
+            XLSX.writeFile(wb, 'combined_output.xlsx');
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            status.style.display = 'none';
+        }
+
+        function resetButton() {
+            processBtn.disabled = false;
+            processBtn.textContent = 'Combine Files';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Splitter V2</title>
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gray-50 p-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center gap-3 mb-3">
+                    <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
+                    </svg>
+                    <h1 class="text-4xl font-bold text-gray-900">File Splitter</h1>
+                </div>
+                <p class="text-gray-500">Split large files into manageable chunks with ease</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-200">
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Maximum File Size (MB)
+                        </label>
+                        <input
+                            type="number"
+                            id="maxSize"
+                            value="4"
+                            class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            min="1"
+                            max="100"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Output Format
+                        </label>
+                        <div class="flex gap-3">
+                            <button
+                                id="csvBtn"
+                                class="flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-indigo-600 text-white shadow-lg"
+                            >
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                CSV
+                            </button>
+                            <button
+                                id="excelBtn"
+                                class="flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            >
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center gap-3 cursor-pointer mb-4">
+                        <input
+                            type="checkbox"
+                            id="hasHeaderCheckbox"
+                            checked
+                            class="w-5 h-5 rounded border-gray-300 bg-white text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <span class="text-gray-700 font-medium">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            File has a header row (first row contains column name)
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="emailModeCheckbox"
+                            class="w-5 h-5 rounded border-gray-300 bg-white text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <span class="text-gray-700 font-medium">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Email List Mode (validates & removes duplicates)
+                        </span>
+                    </label>
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Upload File
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="file"
+                            id="fileInput"
+                            accept=".csv,.xlsx,.xls,.txt"
+                            class="hidden"
+                        />
+                        <label
+                            for="fileInput"
+                            id="fileLabel"
+                            class="flex items-center justify-center gap-3 w-full px-6 py-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-all"
+                        >
+                            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <div class="text-center">
+                                <p class="text-gray-900 font-medium" id="fileName">Click to upload or drag and drop</p>
+                                <p class="text-gray-500 text-sm mt-1" id="fileSize">CSV, Excel, or TXT files accepted</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="progressSection" class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg hidden">
+                    <div class="flex items-center gap-3 mb-2">
+                        <svg class="w-5 h-5 text-indigo-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <p class="text-indigo-700" id="progressText">Processing...</p>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="errorMsg" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-red-700" id="errorText"></p>
+                    </div>
+                </div>
+
+                <button
+                    id="splitBtn"
+                    class="w-full bg-indigo-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+                >
+                    Split File
+                </button>
+            </div>
+
+            <div id="resultsSection" class="mt-8 bg-white rounded-2xl shadow-sm p-8 border border-gray-200 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h2 class="text-2xl font-bold text-gray-900" id="resultsTitle">Split Complete!</h2>
+                    </div>
+                    <button
+                        id="downloadAllBtn"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all shadow-sm"
+                    >
+                        Download All
+                    </button>
+                </div>
+                <div id="filesList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var uploadedFile = null;
+        var outputFormat = 'csv';
+        var splitFilesData = [];
+        var emailMode = false;
+        var hasHeader = true;
+        var duplicatesRemoved = 0;
+        var invalidEmails = 0;
+
+        var maxSizeInput = document.getElementById('maxSize');
+        var csvBtn = document.getElementById('csvBtn');
+        var excelBtn = document.getElementById('excelBtn');
+        var hasHeaderCheckbox = document.getElementById('hasHeaderCheckbox');
+        var emailModeCheckbox = document.getElementById('emailModeCheckbox');
+        var fileInput = document.getElementById('fileInput');
+        var fileName = document.getElementById('fileName');
+        var fileSize = document.getElementById('fileSize');
+        var splitBtn = document.getElementById('splitBtn');
+        var errorMsg = document.getElementById('errorMsg');
+        var errorText = document.getElementById('errorText');
+        var progressSection = document.getElementById('progressSection');
+        var progressText = document.getElementById('progressText');
+        var progressBar = document.getElementById('progressBar');
+        var resultsSection = document.getElementById('resultsSection');
+        var resultsTitle = document.getElementById('resultsTitle');
+        var filesList = document.getElementById('filesList');
+        var downloadAllBtn = document.getElementById('downloadAllBtn');
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            var k = 1024;
+            var sizes = ['Bytes', 'KB', 'MB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        csvBtn.addEventListener('click', function() {
+            outputFormat = 'csv';
+            csvBtn.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-indigo-600 text-white shadow-lg';
+            excelBtn.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+        });
+
+        excelBtn.addEventListener('click', function() {
+            outputFormat = 'excel';
+            excelBtn.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-indigo-600 text-white shadow-lg';
+            csvBtn.className = 'flex-1 px-4 py-3 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+        });
+
+        hasHeaderCheckbox.addEventListener('change', function() {
+            hasHeader = hasHeaderCheckbox.checked;
+        });
+
+        emailModeCheckbox.addEventListener('change', function() {
+            emailMode = emailModeCheckbox.checked;
+        });
+
+        // Stricter email validation
+        function isValidEmail(email) {
+            if (!email || typeof email !== 'string') return false;
+            
+            var trimmed = email.trim();
+            
+            // Basic structure checks
+            if (trimmed.length === 0 || trimmed.length > 320) return false;
+            if (trimmed.indexOf(' ') !== -1) return false;
+            
+            // Must have exactly one @
+            var atCount = (trimmed.match(/@/g) || []).length;
+            if (atCount !== 1) return false;
+            
+            var parts = trimmed.split('@');
+            var local = parts[0];
+            var domain = parts[1];
+            
+            // Local part validation
+            if (!local || local.length === 0 || local.length > 64) return false;
+            if (local[0] === '.' || local[local.length - 1] === '.') return false;
+            if (local.indexOf('..') !== -1) return false;
+            
+            // Domain validation
+            if (!domain || domain.length === 0 || domain.length > 255) return false;
+            if (domain.indexOf('.') === -1) return false;
+            if (domain[0] === '.' || domain[0] === '-') return false;
+            if (domain[domain.length - 1] === '.' || domain[domain.length - 1] === '-') return false;
+            if (domain.indexOf('..') !== -1) return false;
+            
+            // TLD validation
+            var lastDot = domain.lastIndexOf('.');
+            var tld = domain.substring(lastDot + 1);
+            if (tld.length < 2) return false;
+            
+            // Character validation - stricter regex
+            var localRegex = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+$/;
+            var domainRegex = /^[a-zA-Z0-9.-]+$/;
+            var tldRegex = /^[a-zA-Z]{2,}$/;
+            
+            if (!localRegex.test(local)) return false;
+            if (!domainRegex.test(domain)) return false;
+            if (!tldRegex.test(tld)) return false;
+            
+            // Domain labels validation
+            var labels = domain.split('.');
+            for (var i = 0; i < labels.length; i++) {
+                var label = labels[i];
+                if (label.length === 0 || label.length > 63) return false;
+                if (label[0] === '-' || label[label.length - 1] === '-') return false;
+            }
+            
+            return true;
+        }
+
+        // Process rows in chunks with async breaks to prevent freezing
+        function processRowsAsync(rows, batchSize) {
+            return new Promise(function(resolve) {
+                if (!emailMode) {
+                    resolve({ rows: rows, duplicatesRemoved: 0, invalidEmails: 0 });
+                    return;
+                }
+
+                var emailSet = {};
+                var validRows = [];
+                var totalDuplicates = 0;
+                var totalInvalid = 0;
+                var index = 0;
+
+                function processBatch() {
+                    var start = index;
+                    var end = Math.min(index + batchSize, rows.length);
+                    
+                    // Process batch
+                    for (var i = start; i < end; i++) {
+                        var row = rows[i];
+                        var email = row[0] ? String(row[0]).trim() : '';
+                        
+                        if (!email) {
+                            totalInvalid++;
+                            continue;
+                        }
+                        
+                        if (!isValidEmail(email)) {
+                            totalInvalid++;
+                            continue;
+                        }
+                        
+                        var lowerEmail = email.toLowerCase();
+                        if (emailSet[lowerEmail]) {
+                            totalDuplicates++;
+                            continue;
+                        }
+                        
+                        emailSet[lowerEmail] = true;
+                        validRows.push([email]);
+                    }
+                    
+                    index = end;
+                    
+                    // Update progress
+                    var progress = Math.round((index / rows.length) * 100);
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = 'Validating emails: ' + index.toLocaleString() + ' / ' + rows.length.toLocaleString();
+                    
+                    // Continue or finish
+                    if (index < rows.length) {
+                        setTimeout(processBatch, 0);
+                    } else {
+                        resolve({
+                            rows: validRows,
+                            duplicatesRemoved: totalDuplicates,
+                            invalidEmails: totalInvalid
+                        });
+                    }
+                }
+                
+                processBatch();
+            });
+        }
+
+        // Fast CSV parser optimized for large files
+        function parseCSVFast(text) {
+            var lines = text.split('\n');
+            var data = [];
+            var delimiter = text.indexOf('\t') > -1 ? '\t' : ',';
+            
+            // Process in batches
+            var batchSize = 10000;
+            for (var start = 0; start < lines.length; start += batchSize) {
+                var end = Math.min(start + batchSize, lines.length);
+                
+                for (var i = start; i < end; i++) {
+                    var line = lines[i];
+                    if (!line) continue;
+                    
+                    if (delimiter === '\t') {
+                        data.push(line.split('\t'));
+                    } else {
+                        // Simple CSV parser for quoted fields
+                        var row = [];
+                        var current = '';
+                        var inQuotes = false;
+                        
+                        for (var j = 0; j < line.length; j++) {
+                            var char = line[j];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                row.push(current.trim());
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        row.push(current.trim());
+                        data.push(row);
+                    }
+                }
+            }
+            
+            return data;
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            uploadedFile = e.target.files[0];
+            if (uploadedFile) {
+                fileName.textContent = uploadedFile.name;
+                fileSize.textContent = formatBytes(uploadedFile.size);
+                errorMsg.classList.add('hidden');
+                resultsSection.classList.add('hidden');
+            }
+        });
+
+        splitBtn.addEventListener('click', function() {
+            if (!uploadedFile) {
+                showError('Please select a file first');
+                return;
+            }
+
+            splitBtn.disabled = true;
+            splitBtn.textContent = 'Processing...';
+            errorMsg.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            progressSection.classList.remove('hidden');
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Reading file...';
+
+            setTimeout(function() {
+                try {
+                    var maxBytes = parseFloat(maxSizeInput.value) * 1024 * 1024;
+                    var fileExt = uploadedFile.name.toLowerCase();
+                    var isExcel = fileExt.indexOf('.xlsx') > -1 || fileExt.indexOf('.xls') > -1;
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        setTimeout(function() {
+                            try {
+                                progressText.textContent = 'Parsing file...';
+                                progressBar.style.width = '20%';
+                                
+                                var data;
+                                
+                                if (isExcel) {
+                                    var workbook = XLSX.read(e.target.result, { type: 'binary' });
+                                    var sheetName = workbook.SheetNames[0];
+                                    data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+                                } else {
+                                    data = parseCSVFast(e.target.result);
+                                }
+
+                                progressBar.style.width = '40%';
+                                progressText.textContent = 'Filtering empty rows...';
+
+                                setTimeout(function() {
+                                    data = data.filter(function(row) {
+                                        return row && row.some(function(cell) { return cell !== ''; });
+                                    });
+
+                                    var headers = hasHeader ? data[0] : null;
+                                    var rows = hasHeader ? data.slice(1) : data;
+
+                                    // Process email validation with async batches
+                                    var batchSize = 5000;
+                                    processRowsAsync(rows, batchSize).then(function(result) {
+                                        duplicatesRemoved = result.duplicatesRemoved;
+                                        invalidEmails = result.invalidEmails;
+                                        rows = result.rows;
+
+                                        progressBar.style.width = '70%';
+                                        progressText.textContent = 'Splitting into files...';
+
+                                        setTimeout(function() {
+                                            // Split into files with ACCURATE size calculation
+                                            var chunks = [];
+                                            var currentChunk = headers ? [headers] : [];
+                                            var currentSize = 0;
+
+                                            for (var j = 0; j < rows.length; j++) {
+                                                var row = rows[j];
+                                                var rowSize = calculateActualRowSize(row);
+
+                                                // Check if adding this row would exceed the limit
+                                                // IMPORTANT: Only split if we already have data rows (not just header)
+                                                var minRows = headers ? 1 : 0;
+                                                if (currentSize + rowSize > maxBytes && currentChunk.length > minRows) {
+                                                    chunks.push(currentChunk);
+                                                    currentChunk = headers ? [headers] : [];
+                                                    currentSize = headers ? calculateActualRowSize(headers) : 0;
+                                                }
+
+                                                currentChunk.push(row);
+                                                currentSize += rowSize;
+                                            }
+
+                                            // Add final chunk if it has data
+                                            var minRows = headers ? 1 : 0;
+                                            if (currentChunk.length > minRows) {
+                                                chunks.push(currentChunk);
+                                            }
+
+                                            splitFilesData = chunks.map(function(chunk, index) {
+                                                var baseName = uploadedFile.name.replace(/\.(csv|xlsx|xls|txt)$/i, '');
+                                                var rowCount = headers ? chunk.length - 1 : chunk.length;
+                                                return {
+                                                    name: outputFormat === 'csv' ? baseName + '_part_' + (index + 1) + '.csv' : baseName + '_part_' + (index + 1) + '.xlsx',
+                                                    data: chunk,
+                                                    rows: rowCount
+                                                };
+                                            });
+
+                                            progressBar.style.width = '100%';
+                                            progressText.textContent = 'Complete!';
+
+                                            setTimeout(function() {
+                                                displayResults();
+                                                splitBtn.disabled = false;
+                                                splitBtn.textContent = 'Split File';
+                                                progressSection.classList.add('hidden');
+                                            }, 500);
+                                        }, 100);
+                                    });
+                                }, 100);
+
+                            } catch (err) {
+                                showError('Error processing file: ' + err.message);
+                                splitBtn.disabled = false;
+                                splitBtn.textContent = 'Split File';
+                                progressSection.classList.add('hidden');
+                            }
+                        }, 100);
+                    };
+
+                    if (isExcel) {
+                        reader.readAsBinaryString(uploadedFile);
+                    } else {
+                        reader.readAsText(uploadedFile);
+                    }
+                } catch (err) {
+                    showError('Error reading file: ' + err.message);
+                    splitBtn.disabled = false;
+                    splitBtn.textContent = 'Split File';
+                    progressSection.classList.add('hidden');
+                }
+            }, 100);
+        });
+
+        // FIXED: Calculate actual byte size of a single row
+        function calculateActualRowSize(row) {
+            var size = 0;
+            
+            for (var i = 0; i < row.length; i++) {
+                var cell = String(row[i] || '');
+                var cellSize = 0;
+                
+                // Count actual bytes (UTF-8 encoding)
+                for (var j = 0; j < cell.length; j++) {
+                    var code = cell.charCodeAt(j);
+                    if (code < 0x80) {
+                        cellSize += 1;
+                    } else if (code < 0x800) {
+                        cellSize += 2;
+                    } else if (code < 0x10000) {
+                        cellSize += 3;
+                    } else {
+                        cellSize += 4;
+                    }
+                }
+                
+                // Check if cell needs quoting
+                var needsQuotes = cell.indexOf(',') !== -1 || 
+                                  cell.indexOf('"') !== -1 || 
+                                  cell.indexOf('\n') !== -1 ||
+                                  cell.indexOf('\r') !== -1;
+                
+                if (needsQuotes) {
+                    cellSize += 2; // Quote marks
+                    // Count escaped quotes
+                    var quoteCount = (cell.match(/"/g) || []).length;
+                    cellSize += quoteCount; // Each quote becomes ""
+                }
+                
+                size += cellSize;
+                
+                // Add comma separator (except for last column)
+                if (i < row.length - 1) {
+                    size += 1;
+                }
+            }
+            
+            // Add newline (CRLF for Windows compatibility)
+            size += 2;
+            
+            return size;
+        }
+
+        // Calculate total size for display
+        function estimateSize(rows) {
+            var totalSize = 0;
+            for (var i = 0; i < rows.length; i++) {
+                totalSize += calculateActualRowSize(rows[i]);
+            }
+            
+            // Excel overhead
+            if (outputFormat === 'excel') {
+                totalSize = totalSize * 2.0;
+            }
+            
+            return totalSize;
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMsg.classList.remove('hidden');
+        }
+
+        function displayResults() {
+            var titleText = 'Split Complete! (' + splitFilesData.length + ' files)';
+            if (emailMode && (duplicatesRemoved > 0 || invalidEmails > 0)) {
+                titleText += ' • Removed: ' + duplicatesRemoved + ' duplicates';
+                if (invalidEmails > 0) {
+                    titleText += ', ' + invalidEmails + ' invalid';
+                }
+            }
+            resultsTitle.textContent = titleText;
+            resultsSection.classList.remove('hidden');
+            filesList.innerHTML = '';
+
+            splitFilesData.forEach(function(fileData, index) {
+                var size = estimateSize(fileData.data);
+                var fileDiv = document.createElement('div');
+                fileDiv.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all';
+                fileDiv.innerHTML = '<div class="flex items-center gap-4"><svg class="w-8 h-8 ' + (outputFormat === 'csv' ? 'text-indigo-600' : 'text-green-600') + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><div><p class="text-gray-900 font-medium">' + fileData.name + '</p><p class="text-gray-500 text-sm">' + formatBytes(size) + ' • ' + fileData.rows.toLocaleString() + ' rows</p></div></div><button class="download-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all" data-index="' + index + '"><svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>Download</button>';
+                filesList.appendChild(fileDiv);
+            });
+
+            var downloadBtns = document.querySelectorAll('.download-btn');
+            for (var i = 0; i < downloadBtns.length; i++) {
+                downloadBtns[i].addEventListener('click', function(e) {
+                    var idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                    downloadFile(idx);
+                });
+            }
+        }
+
+        function downloadFile(index) {
+            var fileData = splitFilesData[index];
+            var blob;
+
+            if (outputFormat === 'csv') {
+                var csvContent = fileData.data.map(function(row) {
+                    return row.map(function(cell) {
+                        var str = String(cell || '');
+                        // Quote if contains special chars
+                        if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1) {
+                            return '"' + str.replace(/"/g, '""') + '"';
+                        }
+                        return str;
+                    }).join(',');
+                }).join('\n');
+                blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+            } else {
+                var ws = XLSX.utils.aoa_to_sheet(fileData.data);
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+                var buf = new ArrayBuffer(wbout.length);
+                var view = new Uint8Array(buf);
+                for (var i = 0; i < wbout.length; i++) {
+                    view[i] = wbout.charCodeAt(i) & 0xFF;
+                }
+                blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            }
+
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = fileData.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        downloadAllBtn.addEventListener('click', function() {
+            for (var i = 0; i < splitFilesData.length; i++) {
+                (function(idx) {
+                    setTimeout(function() { downloadFile(idx); }, idx * 300);
+                })(i);
+            }
+        });
+    </script>
+</body>
+</html>

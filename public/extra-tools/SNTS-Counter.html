@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Entry Counter</title>
+    <script src="./vendor/jszip.min.js"></script>
+    <script src="./vendor/papaparse.min.js"></script>
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-8 border-b border-gray-200 pb-4">
+            <h1 class="text-3xl font-bold text-indigo-600">Entry Counter <span class="text-sm font-normal text-gray-500">v1.0</span></h1>
+            <p class="text-gray-500">Upload ZIP, CSV, Excel, or Text. Headers are excluded from the count.</p>
+        </header>
+
+        <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-indigo-500 transition-colors cursor-pointer bg-white">
+            <p class="text-xl">Drop files here or <span class="text-indigo-600 font-semibold">click to browse</span></p>
+            <input type="file" id="file-input" multiple class="hidden" accept=".zip,.csv,.txt,.xlsx,.xls">
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 gap-4">
+            <div class="bg-indigo-600 rounded-lg p-6 text-center shadow-lg">
+                <h2 class="text-lg uppercase tracking-widest text-white opacity-80">Total Combined Entries</h2>
+                <p id="grand-total" class="text-6xl font-black text-white">0</p>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h3 class="text-xl font-semibold mb-4 text-gray-900">File Breakdown</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">File Name</th>
+                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="p-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Entries (Excl. Header)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const resultsBody = document.getElementById('results-body');
+        const grandTotalDisplay = document.getElementById('grand-total');
+
+        let grandTotal = 0;
+
+        // Event Listeners
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => handleFiles(e.target.files);
+        
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('border-indigo-500');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500');
+            handleFiles(e.dataTransfer.files);
+        };
+
+        async function handleFiles(files) {
+            // Reset UI for new batch
+            resultsBody.innerHTML = '';
+            grandTotal = 0;
+            updateGrandTotal();
+
+            for (let file of files) {
+                if (file.name.endsWith('.zip')) {
+                    await processZip(file);
+                } else {
+                    await processSingleFile(file);
+                }
+            }
+        }
+
+        async function processZip(zipFile) {
+            const zip = await JSZip.loadAsync(zipFile);
+            for (let filename in zip.files) {
+                const fileData = zip.files[filename];
+                if (!fileData.dir) {
+                    const content = await fileData.async("blob");
+                    // Create a pseudo-file object
+                    const dummyFile = new File([content], filename);
+                    await processSingleFile(dummyFile);
+                }
+            }
+        }
+
+        async function processSingleFile(file) {
+            let count = 0;
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            try {
+                if (ext === 'csv' || ext === 'txt') {
+                    count = await countCsvTxt(file);
+                } else if (ext === 'xlsx' || ext === 'xls') {
+                    count = await countExcel(file);
+                } else {
+                    return; // Skip unsupported
+                }
+
+                addResultRow(file.name, ext.toUpperCase(), count);
+                grandTotal += count;
+                updateGrandTotal();
+            } catch (err) {
+                console.error("Error processing " + file.name, err);
+                addResultRow(file.name, 'Error', 0);
+            }
+        }
+
+        function countCsvTxt(file) {
+            return new Promise((resolve) => {
+                Papa.parse(file, {
+                    skipEmptyLines: 'greedy',
+                    complete: function(results) {
+                        // Subtract 1 for header, ensure we don't go below 0
+                        const count = Math.max(0, results.data.length - 1);
+                        resolve(count);
+                    }
+                });
+            });
+        }
+
+        function countExcel(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    let totalSheetsCount = 0;
+                    
+                    workbook.SheetNames.forEach(sheetName => {
+                        const sheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(sheet);
+                        // sheet_to_json automatically treats first row as header and excludes it from the array length
+                        totalSheetsCount += json.length;
+                    });
+                    resolve(totalSheetsCount);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function addResultRow(name, type, count) {
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
+            row.innerHTML = `
+                <td class="p-4 truncate max-w-xs text-gray-900">${name}</td>
+                <td class="p-4 text-gray-500">${type}</td>
+                <td class="p-4 text-right font-mono text-indigo-600">${count.toLocaleString()}</td>
+            `;
+            resultsBody.appendChild(row);
+        }
+
+        function updateGrandTotal() {
+            grandTotalDisplay.innerText = grandTotal.toLocaleString();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Lookup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./vendor/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#12151A;
+    --surface:#1A1E25;
+    --surface-2:#20252D;
+    --border:#2A303A;
+    --text:#E9EBEE;
+    --text-muted:#8B92A0;
+    --amber:#E8A33D;
+    --amber-dim:#4A3A20;
+    --green:#4CAF7D;
+    --green-dim:#1E3128;
+    --red:#E5593D;
+    --red-dim:#3A211B;
+    --blue:#5B9BD5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
+  .brand{
+    display:flex;align-items:baseline;gap:12px;margin-bottom:6px;
+  }
+  .brand .mark{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;color:var(--amber);
+    border:1px solid var(--amber-dim);
+    background:var(--amber-dim);
+    padding:2px 8px;border-radius:4px;
+    letter-spacing:0.04em;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;font-size:28px;margin:0;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--text-muted);font-size:14px;margin:8px 0 36px;line-height:1.5;max-width:640px;}
+
+  .step{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px 28px;
+    margin-bottom:20px;
+  }
+  .step.disabled{opacity:0.45;pointer-events:none;}
+  .step-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;color:var(--bg);
+    background:var(--text-muted);
+    width:22px;height:22px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .step.active .step-num{background:var(--amber);}
+  .step-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;}
+
+  .drop-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.drop-row{grid-template-columns:1fr;}}
+  .dropzone{
+    border:1.5px dashed var(--border);
+    border-radius:10px;
+    padding:28px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+    position:relative;
+  }
+  .dropzone:hover, .dropzone.drag{border-color:var(--amber);background:rgba(232,163,61,0.05);}
+  .dropzone.filled{border-style:solid;border-color:var(--green);background:rgba(76,175,125,0.06);}
+  .dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .dz-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px;font-weight:600;}
+  .dz-file{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);word-break:break-all;}
+  .dz-hint{font-size:12px;color:var(--text-muted);margin-top:6px;}
+
+  .col-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:4px;}
+  @media (max-width:640px){.col-grid{grid-template-columns:1fr;}}
+  .col-block h4{
+    font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
+    margin:0 0 12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;
+  }
+  label.field{display:block;font-size:12px;color:var(--text-muted);margin:14px 0 6px;}
+  select, input[type=text]{
+    width:100%;background:var(--surface-2);border:1px solid var(--border);
+    color:var(--text);padding:9px 10px;border-radius:7px;font-size:14px;font-family:'Inter',sans-serif;
+  }
+  select:focus, input:focus{outline:none;border-color:var(--amber);}
+  .type-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    background:var(--surface-2);border:1px solid var(--border);
+    padding:4px 9px;border-radius:20px;margin-top:8px;color:var(--blue);
+  }
+  .type-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--blue);}
+
+  .rename-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .rename-row .orig{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);min-width:110px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rename-row .arrow{color:var(--text-muted);font-size:12px;}
+  .rename-row input{width:auto;flex:1;padding:6px 8px;font-size:13px;}
+  .rename-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:16px;margin-bottom:2px;}
+
+  .ref-file-item{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:7px;
+    padding:8px 12px;margin-top:8px;font-size:13px;
+  }
+  .ref-file-item .fname{font-family:'JetBrains Mono',monospace;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ref-file-item .frows{color:var(--text-muted);font-size:12px;flex-shrink:0;margin-left:10px;}
+  .ref-file-item .remove{
+    background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;
+    line-height:1;padding:2px 6px;flex-shrink:0;
+  }
+  .ref-file-item .remove:hover{color:#ff7a5c;}
+
+  .btn{
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;
+    background:var(--amber);color:#1A1206;border:none;
+    padding:11px 22px;border-radius:8px;cursor:pointer;
+    transition:filter .15s;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{background:var(--border);color:var(--text-muted);cursor:not-allowed;filter:none;}
+  .btn.ghost{
+    background:transparent;border:1px solid var(--border);color:var(--text);
+  }
+  .btn.small{padding:7px 14px;font-size:13px;}
+  .btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+  .summary{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 18px;min-width:110px;
+  }
+  .stat .n{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;}
+  .stat .l{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px;}
+  .stat.matched .n{color:var(--green);}
+  .stat.unmatched .n{color:var(--red);}
+
+  .filter-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+  .filter-row select{width:auto;}
+  .filter-row .search{flex:1;min-width:180px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.04em;
+    color:var(--text-muted);padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600;
+  }
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:12.5px;vertical-align:top;}
+  tbody tr:hover{background:var(--surface-2);}
+  .pill{
+    display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;
+    font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.02em;
+  }
+  .pill.matched{background:var(--green-dim);color:var(--green);}
+  .pill.unmatched{background:var(--red-dim);color:var(--red);}
+  .reason{color:var(--text-muted);font-size:12px;font-family:'Inter',sans-serif;}
+  .edit-input{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:4px 6px;border-radius:5px;width:100%;
+  }
+  .edit-input.changed{border-color:var(--amber);}
+  .table-wrap{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:8px;}
+  .table-wrap table{margin:0;}
+  .table-wrap thead{position:sticky;top:0;background:var(--surface);z-index:1;}
+
+  .empty-note{color:var(--text-muted);font-size:13px;padding:20px 0;text-align:center;}
+  .hidden{display:none !important;}
+  .footnote{font-size:12px;color:var(--text-muted);margin-top:10px;line-height:1.6;}
+  .suggest{color:var(--amber);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand"><span class="mark">VLOOKUP, FIXED</span></div>
+  <h1>Smart Lookup</h1>
+  <p class="sub">Match rows between two files even when data types don't line up — text vs. numbers, mismatched date formats, or stray formatting. Works the same on Mac and Windows. Nothing leaves your browser.</p>
+
+  <!-- STEP 1: UPLOAD -->
+  <div class="step active" id="step1">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Upload your files</div></div>
+    <div class="drop-row">
+      <div class="dropzone" id="dz-source">
+        <input type="file" id="file-source" accept=".xlsx,.xls,.csv">
+        <div class="dz-label">Source file</div>
+        <div class="dz-file" id="dz-source-name">Drop or click to upload (.xlsx / .csv)</div>
+        <div class="dz-hint" id="dz-source-hint">The file you want to enrich</div>
+      </div>
+      <div class="dropzone" id="dz-ref">
+        <input type="file" id="file-ref" accept=".xlsx,.xls,.csv" multiple>
+        <div class="dz-label">Reference file(s)</div>
+        <div class="dz-file" id="dz-ref-name">Drop or click to upload (.xlsx / .csv) — you can add more than one</div>
+        <div class="dz-hint" id="dz-ref-hint">The lookup table(s) you're matching against</div>
+      </div>
+    </div>
+    <div id="ref-file-list"></div>
+  </div>
+
+  <!-- STEP 2: CONFIGURE -->
+  <div class="step disabled" id="step2">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Choose your columns</div></div>
+    <div class="col-grid">
+      <div class="col-block">
+        <h4>Source</h4>
+        <label class="field">Column to match on</label>
+        <select id="sel-source-key"></select>
+        <div class="type-badge hidden" id="badge-source"><span class="dot"></span><span id="badge-source-text"></span></div>
+        <label class="field">Override detected type</label>
+        <select id="sel-source-type">
+          <option value="auto">Auto-detect</option>
+          <option value="text">Text</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+          <option value="phone">Phone number</option>
+        </select>
+      </div>
+      <div class="col-block">
+        <h4>Reference</h4>
+        <label class="field">Column to match on</label>
+        <div class="footnote" style="margin:0 0 6px;">Set per file in the list above (Step 1) — each reference file can use a different column name.</div>
+        <label class="field">Override detected type</label>
+        <select id="sel-ref-type">
+          <option value="auto">Auto-detect</option>
+          <option value="text">Text</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+          <option value="phone">Phone number</option>
+        </select>
+        <label class="field">Column(s) to pull back (return values)</label>
+        <select id="sel-ref-return" multiple size="4"></select>
+        <div class="footnote">Cmd/Ctrl-click to select more than one.</div>
+        <div id="return-name-map"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btn-run">Run match</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: RESULTS -->
+  <div class="step disabled" id="step3">
+    <div class="step-head"><div class="step-num">3</div><div class="step-title">Results</div></div>
+
+    <div class="summary">
+      <div class="stat matched"><div class="n" id="stat-matched">0</div><div class="l">Matched</div></div>
+      <div class="stat unmatched"><div class="n" id="stat-unmatched">0</div><div class="l">Unmatched</div></div>
+      <div class="stat"><div class="n" id="stat-total">0</div><div class="l">Total rows</div></div>
+    </div>
+
+    <div class="filter-row">
+      <select id="filter-status">
+        <option value="all">All rows</option>
+        <option value="matched">Matched only</option>
+        <option value="unmatched">Unmatched only</option>
+      </select>
+      <input type="text" class="search" id="filter-search" placeholder="Search lookup values...">
+      <button class="btn ghost small" id="btn-rerun">Re-run matching</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px">Status</th>
+            <th>Source value</th>
+            <th>Reason / return value</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+    <div class="empty-note hidden" id="empty-note">No rows match this filter.</div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-export-xlsx">Export enriched file (.xlsx)</button>
+      <button class="btn ghost" id="btn-export-csv">Export as .csv</button>
+    </div>
+    <div class="footnote">The exported file keeps every original source column and adds your chosen return column(s), named as configured above. Matched rows only — unmatched rows export blank in those columns.</div>
+  </div>
+
+</div>
+
+<script>
+// ---------- State ----------
+let sourceData = null, sourceHeaders = [];
+let refData = null, refHeaders = [];
+let sourceFileName = 'source_file';
+let matchResults = []; // {rowIndex, sourceValue, editedValue, status, reason, returned:{}}
+let sourceKeyCol, refReturnCols = [];
+let returnNameMap = {}; // origColumn -> export column name
+
+// ---------- File parsing ----------
+let refFiles = []; // [{name, rows}]
+
+function readFile(file, cb){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, {type:'array', cellDates:true});
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet, {defval:'', raw:true});
+    cb(json);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setupDropzone(zoneId, inputId, nameId, hintId, onLoaded, multi){
+  const zone = document.getElementById(zoneId);
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+  input.addEventListener('change', () => {
+    if(input.files.length) handleFiles(Array.from(input.files));
+    input.value = '';
+  });
+  zone.addEventListener('dragover', (e)=>{e.preventDefault();zone.classList.add('drag');});
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag'));
+  zone.addEventListener('drop', (e)=>{
+    e.preventDefault(); zone.classList.remove('drag');
+    if(e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
+  });
+  function handleFiles(files){
+    if(!multi){ files = [files[0]]; }
+    let remaining = files.length;
+    files.forEach(file=>{
+      nameEl.textContent = 'Parsing ' + file.name + '...';
+      readFile(file, (json) => {
+        zone.classList.add('filled');
+        onLoaded(json, file.name);
+        remaining--;
+        if(remaining===0 && !multi) nameEl.textContent = file.name + ' — ' + json.length + ' rows';
+        checkStep1Done();
+      });
+    });
+  }
+}
+
+function checkStep1Done(){
+  if(sourceData && refFiles.length){
+    document.getElementById('step2').classList.remove('disabled');
+    document.getElementById('step2').classList.add('active');
+    populateColumnSelectors();
+  }
+}
+
+setupDropzone('dz-source','file-source','dz-source-name','dz-source-hint', (json, fileName)=>{
+  sourceData = json;
+  sourceHeaders = json.length ? Object.keys(json[0]) : [];
+  sourceFileName = fileName.replace(/\.[^/.]+$/, '');
+}, false);
+
+setupDropzone('dz-ref','file-ref','dz-ref-name','dz-ref-hint', (json, fileName)=>{
+  refFiles.push({name: fileName, rows: json});
+  rebuildRefData();
+  renderRefFileList();
+}, true);
+
+function rebuildRefData(){
+  refData = [].concat(...refFiles.map(f=>f.rows));
+  const headerSet = new Set();
+  refFiles.forEach(f=> f.rows.length && Object.keys(f.rows[0]).forEach(h=>headerSet.add(h)));
+  refHeaders = Array.from(headerSet);
+}
+
+function renderRefFileList(){
+  const container = document.getElementById('ref-file-list');
+  container.innerHTML = '';
+  const nameEl = document.getElementById('dz-ref-name');
+  if(refFiles.length===0){
+    nameEl.textContent = 'Drop or click to upload (.xlsx / .csv) — you can add more than one';
+    return;
+  }
+  nameEl.textContent = refFiles.length + ' file' + (refFiles.length>1?'s':'') + ' — ' + refData.length + ' total rows';
+  refFiles.forEach((f, i)=>{
+    const headers = f.rows.length ? Object.keys(f.rows[0]) : [];
+    if(!f.keyCol || !headers.includes(f.keyCol)){
+      const prevKey = refFiles.find((of,oi)=>oi!==i && of.keyCol && headers.includes(of.keyCol));
+      f.keyCol = prevKey ? prevKey.keyCol : headers[0];
+    }
+
+    const item = document.createElement('div');
+    item.className = 'ref-file-item';
+
+    const top = document.createElement('div');
+    top.style.display='flex'; top.style.alignItems='center'; top.style.justifyContent='space-between'; top.style.width='100%'; top.style.gap='10px';
+    const fname = document.createElement('div'); fname.className='fname'; fname.title=f.name; fname.textContent = f.name;
+    const frows = document.createElement('div'); frows.className='frows'; frows.textContent = f.rows.length + ' rows';
+    const remove = document.createElement('button'); remove.className='remove'; remove.textContent='✕'; remove.title='Remove this file';
+    remove.addEventListener('click', ()=>{
+      refFiles.splice(i,1);
+      rebuildRefData();
+      renderRefFileList();
+      if(refFiles.length){ populateColumnSelectors(); }
+    });
+    top.appendChild(fname); top.appendChild(frows); top.appendChild(remove);
+
+    const keyRow = document.createElement('div');
+    keyRow.className = 'rename-row'; keyRow.style.width='100%'; keyRow.style.marginTop='6px';
+    const keyLabel = document.createElement('div'); keyLabel.className='orig'; keyLabel.textContent = 'Match column:';
+    const keySelect = document.createElement('select');
+    keySelect.style.flex='1';
+    headers.forEach(h=>{
+      const opt = document.createElement('option');
+      opt.value = h; opt.textContent = h;
+      if(h === f.keyCol) opt.selected = true;
+      keySelect.appendChild(opt);
+    });
+    keySelect.addEventListener('change', ()=>{ f.keyCol = keySelect.value; });
+    keyRow.appendChild(keyLabel); keyRow.appendChild(keySelect);
+
+    item.style.flexDirection = 'column'; item.style.alignItems = 'stretch';
+    item.appendChild(top);
+    item.appendChild(keyRow);
+    container.appendChild(item);
+  });
+}
+
+// ---------- Column selectors ----------
+function populateColumnSelectors(){
+  fillSelect('sel-source-key', sourceHeaders);
+  fillSelect('sel-ref-return', refHeaders, true);
+
+  document.getElementById('sel-source-key').addEventListener('change', updateSourceBadge);
+  document.getElementById('sel-ref-return').addEventListener('change', renderReturnNameMap);
+  updateSourceBadge();
+  renderReturnNameMap();
+}
+function renderReturnNameMap(){
+  const selected = Array.from(document.getElementById('sel-ref-return').selectedOptions).map(o=>o.value);
+  const container = document.getElementById('return-name-map');
+  container.innerHTML = '';
+  if(selected.length === 0) return;
+
+  const label = document.createElement('div');
+  label.className = 'rename-label';
+  label.textContent = 'Name the exported column' + (selected.length>1 ? 's' : '');
+  container.appendChild(label);
+
+  selected.forEach((col, i)=>{
+    const row = document.createElement('div');
+    row.className = 'rename-row';
+    const orig = document.createElement('div');
+    orig.className = 'orig'; orig.title = col; orig.textContent = col;
+    const arrow = document.createElement('div');
+    arrow.className = 'arrow'; arrow.textContent = '→';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.dataset.origCol = col;
+    input.value = returnNameMap[col] || (selected.length===1 ? 'outcome' : col);
+    input.addEventListener('input', ()=>{ returnNameMap[col] = input.value; });
+    returnNameMap[col] = input.value;
+    row.appendChild(orig); row.appendChild(arrow); row.appendChild(input);
+    container.appendChild(row);
+  });
+}
+function fillSelect(id, headers, multi){
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  headers.forEach(h=>{
+    const opt = document.createElement('option');
+    opt.value = h; opt.textContent = h;
+    sel.appendChild(opt);
+  });
+}
+function updateSourceBadge(){
+  const col = document.getElementById('sel-source-key').value;
+  const type = detectColumnType(sourceData.map(r=>r[col]));
+  document.getElementById('badge-source').classList.remove('hidden');
+  document.getElementById('badge-source-text').textContent = 'Detected as ' + type;
+}
+
+// ---------- Type detection ----------
+function detectColumnType(values){
+  const sample = values.filter(v => v !== '' && v !== null && v !== undefined).slice(0, 50);
+  if(sample.length === 0) return 'text';
+  let dateCount=0, numCount=0, phoneCount=0;
+  sample.forEach(v=>{
+    if(v instanceof Date) dateCount++;
+    else if(isDateLike(v)) dateCount++;
+    else if(isNumberLike(v)) numCount++;
+    else if(isPhoneLike(v)) phoneCount++;
+  });
+  const n = sample.length;
+  if(dateCount/n > 0.6) return 'date';
+  if(numCount/n > 0.6) return 'number';
+  if(phoneCount/n > 0.6) return 'phone';
+  return 'text';
+}
+function isNumberLike(v){
+  if(typeof v === 'number') return true;
+  if(typeof v !== 'string') return false;
+  const cleaned = v.replace(/[,\s]/g,'');
+  return cleaned !== '' && !isNaN(Number(cleaned));
+}
+function isDateLike(v){
+  if(v instanceof Date) return true;
+  if(typeof v === 'number') return false; // ambiguous with plain numbers, handled by cellDates
+  if(typeof v !== 'string') return false;
+  const s = v.trim();
+  return /^\d{4}-\d{1,2}-\d{1,2}$/.test(s) ||
+         /^\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}$/.test(s) ||
+         /^\d{1,2}\s+[A-Za-z]{3,9}\s+\d{2,4}$/.test(s);
+}
+function isPhoneLike(v){
+  if(typeof v === 'number') return false;
+  if(typeof v !== 'string') return false;
+  const digits = v.replace(/[^\d]/g,'');
+  return digits.length >= 7 && digits.length <= 15 && /^[\d\s()+\-.]+$/.test(v.trim());
+}
+
+// ---------- Normalization ----------
+function normalize(value, type){
+  if(value === '' || value === null || value === undefined) return {key:null, display:''};
+  switch(type){
+    case 'number': return {key: normalizeNumber(value), display: String(value)};
+    case 'date': return {key: normalizeDate(value), display: String(value)};
+    case 'phone': return {key: normalizePhone(value), display: String(value)};
+    default: return {key: normalizeText(value), display: String(value)};
+  }
+}
+function normalizeText(v){
+  return String(v).trim().toLowerCase().replace(/\s+/g,' ');
+}
+function normalizeNumber(v){
+  if(typeof v === 'number') return roundKey(v);
+  const cleaned = String(v).trim().replace(/[,\s]/g,'');
+  const n = Number(cleaned);
+  return isNaN(n) ? null : roundKey(n);
+}
+function roundKey(n){ return Math.round(n*1000)/1000; }
+function normalizeDate(v){
+  let d = null;
+  if(v instanceof Date){ d = v; }
+  else if(typeof v === 'number'){
+    // Excel serial date
+    d = new Date(Math.round((v - 25569) * 86400 * 1000));
+  } else if(typeof v === 'string'){
+    const s = v.trim();
+    let m;
+    if(m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)){
+      d = new Date(+m[1], +m[2]-1, +m[3]);
+    } else if(m = s.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})$/)){
+      let a=+m[1], b=+m[2], y=+m[3];
+      if(y<100) y += 2000;
+      // ambiguous DD/MM vs MM/DD: prefer DD/MM if first part >12
+      if(a>12){ d = new Date(y, b-1, a); }
+      else { d = new Date(y, a-1, b); } // default assume MM/DD/YYYY-first-part-as-month unless >12
+    } else {
+      const parsed = Date.parse(s);
+      if(!isNaN(parsed)) d = new Date(parsed);
+    }
+  }
+  if(!d || isNaN(d.getTime())) return null;
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function normalizePhone(v){
+  const digits = String(v).replace(/[^\d]/g,'');
+  return digits.replace(/^0+/,'').slice(-12); // last 12 digits, drop leading zeros
+}
+
+// ---------- Levenshtein for suggestions ----------
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++){
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  }
+  return dp[m][n];
+}
+function similarity(a,b){
+  const dist = levenshtein(a,b);
+  const maxLen = Math.max(a.length,b.length) || 1;
+  return 1 - dist/maxLen;
+}
+
+// ---------- Matching ----------
+document.getElementById('btn-run').addEventListener('click', runMatch);
+document.getElementById('btn-rerun').addEventListener('click', runMatch);
+
+function runMatch(){
+  sourceKeyCol = document.getElementById('sel-source-key').value;
+  refReturnCols = Array.from(document.getElementById('sel-ref-return').selectedOptions).map(o=>o.value);
+  if(refReturnCols.length===0) refReturnCols = [refHeaders[0]];
+  refReturnCols.forEach(c=>{
+    if(!returnNameMap[c]) returnNameMap[c] = refReturnCols.length===1 ? 'outcome' : c;
+  });
+
+  let sourceTypeOverride = document.getElementById('sel-source-type').value;
+  let refTypeOverride = document.getElementById('sel-ref-type').value;
+  const sourceType = sourceTypeOverride==='auto' ? detectColumnType(sourceData.map(r=>r[sourceKeyCol])) : sourceTypeOverride;
+  const refKeySampleValues = [].concat(...refFiles.map(f => f.rows.map(r => r[f.keyCol])));
+  const refType = refTypeOverride==='auto' ? detectColumnType(refKeySampleValues) : refTypeOverride;
+
+  // Build reference index under multiple type interpretations for mismatch detection
+  const refIndexPrimary = {};
+  const refIndexAll = {text:{}, number:{}, date:{}, phone:{}};
+
+  refFiles.forEach(f=>{
+    f.rows.forEach(row=>{
+      const raw = row[f.keyCol];
+      if(raw === '' || raw === null || raw === undefined) return;
+      const primary = normalize(raw, refType).key;
+      if(primary !== null){
+        (refIndexPrimary[primary] ||= []).push(row);
+      }
+      ['text','number','date','phone'].forEach(t=>{
+        const k = normalize(raw, t).key;
+        if(k !== null){
+          (refIndexAll[t][k] ||= []).push(row);
+        }
+      });
+    });
+  });
+
+  matchResults = [];
+  // apply any prior edits before rerun (preserve edited values across reruns)
+  const priorEdits = {};
+  matchResults.forEach(r=>{ if(r.editedValue !== undefined) priorEdits[r.rowIndex]=r.editedValue; });
+
+  sourceData.forEach((row, idx)=>{
+    const rawValue = (existingEdits[idx] !== undefined) ? existingEdits[idx] : row[sourceKeyCol];
+    const norm = normalize(rawValue, sourceType);
+    let status='unmatched', reason='No matching value found in reference file', returned={}, matchedRow=null;
+
+    if(norm.key !== null && refIndexPrimary[norm.key] && refIndexPrimary[norm.key].length){
+      status='matched'; reason='Exact match';
+      matchedRow = refIndexPrimary[norm.key][0];
+      if(refIndexPrimary[norm.key].length > 1) reason = 'Matched (' + refIndexPrimary[norm.key].length + ' reference rows share this value — first used)';
+    } else {
+      // try alternate type interpretations to explain mismatch
+      let found=null, foundType=null;
+      for(const t of ['text','number','date','phone']){
+        if(t===sourceType) continue;
+        const altKey = normalize(rawValue, t).key;
+        if(altKey !== null && refIndexAll[t][altKey] && refIndexAll[t][altKey].length){
+          found = refIndexAll[t][altKey][0]; foundType = t; break;
+        }
+      }
+      if(found){
+        status='matched';
+        reason = 'Matched after reinterpreting as ' + foundType + ' (source column was read as ' + sourceType + ')';
+        matchedRow = found;
+      } else {
+        // fuzzy suggestion
+        const candidates = Object.keys(refIndexPrimary);
+        let best=null, bestScore=0;
+        const cmp = String(norm.display).toLowerCase();
+        for(const c of candidates){
+          const score = similarity(cmp, String(c).toLowerCase());
+          if(score > bestScore){ bestScore=score; best=c; }
+        }
+        if(best !== null && bestScore >= 0.65){
+          reason = 'No exact match — closest reference value is "' + best + '" (' + Math.round(bestScore*100) + '% similar)';
+        } else {
+          reason = 'No match found — value does not appear in reference file';
+        }
+      }
+    }
+
+    if(status==='matched' && matchedRow){
+      refReturnCols.forEach(c => returned[c] = matchedRow[c] !== undefined ? matchedRow[c] : '');
+    }
+
+    matchResults.push({
+      rowIndex: idx,
+      sourceValue: row[sourceKeyCol],
+      displayValue: rawValue,
+      status, reason, returned
+    });
+  });
+
+  document.getElementById('step3').classList.remove('disabled');
+  document.getElementById('step3').classList.add('active');
+  renderResults();
+}
+
+// track manual edits across reruns
+let existingEdits = {};
+
+function renderResults(){
+  const matched = matchResults.filter(r=>r.status==='matched').length;
+  const unmatched = matchResults.length - matched;
+  document.getElementById('stat-matched').textContent = matched;
+  document.getElementById('stat-unmatched').textContent = unmatched;
+  document.getElementById('stat-total').textContent = matchResults.length;
+
+  drawTable();
+}
+
+function drawTable(){
+  const statusFilter = document.getElementById('filter-status').value;
+  const search = document.getElementById('filter-search').value.trim().toLowerCase();
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = '';
+
+  const rows = matchResults.filter(r=>{
+    if(statusFilter!=='all' && r.status!==statusFilter) return false;
+    if(search && !String(r.displayValue).toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('empty-note').classList.toggle('hidden', rows.length>0);
+
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+
+    const tdStatus = document.createElement('td');
+    const pill = document.createElement('span');
+    pill.className = 'pill ' + r.status;
+    pill.textContent = r.status==='matched' ? 'Matched' : 'Unmatched';
+    tdStatus.appendChild(pill);
+
+    const tdValue = document.createElement('td');
+    const input = document.createElement('input');
+    input.className = 'edit-input';
+    input.value = r.displayValue;
+    input.addEventListener('change', ()=>{
+      existingEdits[r.rowIndex] = input.value;
+      input.classList.add('changed');
+    });
+    tdValue.appendChild(input);
+
+    const tdReason = document.createElement('td');
+    if(r.status==='matched'){
+      const vals = refReturnCols.map(c => (returnNameMap[c] || c) + ': ' + (r.returned[c] instanceof Date ? r.returned[c].toLocaleDateString() : r.returned[c]));
+      tdReason.innerHTML = '<div>' + vals.join(' &nbsp;·&nbsp; ') + '</div><div class="reason">' + r.reason + '</div>';
+    } else {
+      tdReason.innerHTML = '<div class="reason">' + r.reason + '</div>';
+    }
+
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdValue);
+    tr.appendChild(tdReason);
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('filter-status').addEventListener('change', drawTable);
+document.getElementById('filter-search').addEventListener('input', drawTable);
+
+// ---------- Export ----------
+function buildExportRows(){
+  return sourceData.map((row, idx) => {
+    const r = matchResults[idx];
+    const out = {...row};
+    refReturnCols.forEach(c=>{
+      const outName = returnNameMap[c] || c;
+      out[outName] = r.status==='matched' ? r.returned[c] : '';
+    });
+    return out;
+  });
+}
+document.getElementById('btn-export-xlsx').addEventListener('click', ()=>{
+  const rows = buildExportRows();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Results');
+  XLSX.writeFile(wb, sourceFileName + '.xlsx');
+});
+document.getElementById('btn-export-csv').addEventListener('click', ()=>{
+  const rows = buildExportRows();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = sourceFileName + '.csv';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+});
+</script>
+</body>
+</html>
