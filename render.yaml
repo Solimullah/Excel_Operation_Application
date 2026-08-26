@@ -1,0 +1,106 @@
+# ---------------------------------------------------------------------------
+# Render blueprint — Sales Support Workbench.
+#
+# This app is a static SPA: no backend, no server-side rendering, no runtime
+# environment. `npm run build` emits static assets and Render's CDN serves
+# them, so this is a `runtime: static` site rather than a Docker web service.
+#
+# The Dockerfile and nginx.conf are still the local production-preview path
+# (`docker-compose up`). They are NOT used by Render. The security headers
+# below are the nginx.conf policy ported over, because a static site has no
+# nginx to read it from — if you change one, change the other.
+#
+# Node version comes from .nvmrc (22). Do not also set NODE_VERSION here;
+# it would take precedence and give you two sources of truth.
+# ---------------------------------------------------------------------------
+
+services:
+  - type: web
+    name: sales-support-workbench
+    runtime: static
+
+    # `npm ci` rather than `npm install`: it fails hard if package-lock.json
+    # has drifted from package.json, which is what we want in a build.
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+
+    # Documentation-only commits should not burn a deploy.
+    buildFilter:
+      ignoredPaths:
+        - context/**
+        - '**/*.md'
+        - LICENSE
+        - .github/**
+
+    # --- No SPA rewrite, deliberately -------------------------------------
+    # There is no router in this application: `activeTab` is React state in
+    # App.tsx and no URL ever changes. A blanket `/* -> /index.html` rewrite
+    # would buy nothing and risks shadowing the real files under
+    # /extra-tools/, which are served directly and must stay reachable.
+    # If a router is ever added, add the rewrite then and scope it so it does
+    # not swallow /extra-tools/ or /fonts/.
+
+    headers:
+      # --- Security ------------------------------------------------------
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+
+      # SAMEORIGIN, not DENY: the five Extra Tools are same-origin pages
+      # rendered inside an iframe by ExtraToolFrame.
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+
+      - path: /*
+        name: Permissions-Policy
+        value: 'geolocation=(), microphone=(), camera=()'
+
+      # frame-ancestors is 'self', NOT 'none'. 'none' blocks framing from
+      # every origin including same-origin, which would render all five
+      # Extra Tools blank while looking fine in `npm run dev` (Vite sends no
+      # CSP at all). It also silently overrides X-Frame-Options above.
+      #
+      # script-src needs 'unsafe-eval' because the vendored jszip.min.js
+      # under /extra-tools/vendor uses `new Function` for global detection.
+      # 'unsafe-inline' covers the pre-paint theme script in index.html and
+      # the inline scripts in each tool page.
+      #
+      # No CDN hosts: Tailwind is compiled at build time and Roboto is
+      # self-hosted at /fonts, so 'self' is the whole allowlist.
+      #
+      # connect-src stays 'self'. No spreadsheet data is ever sent anywhere.
+      # If you find yourself widening THAT, re-read context/system-rules.md §1.
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'self'"
+
+      # --- Caching -------------------------------------------------------
+      # Vite emits content-hashed filenames under /assets, so these are
+      # immutable: a changed file gets a new name.
+      - path: /assets/*
+        name: Cache-Control
+        value: 'public, max-age=31536000, immutable'
+
+      # roboto-variable.woff2 is NOT content-hashed. A year is safe only
+      # because the file is stable — if you ever replace the font, rename it
+      # or clients will hold the old one until the cache expires.
+      - path: /fonts/*
+        name: Cache-Control
+        value: 'public, max-age=31536000, immutable'
+
+      # index.html must never be cached, or clients pin to a stale bundle.
+      - path: /index.html
+        name: Cache-Control
+        value: 'no-store, no-cache, must-revalidate'
+
+      # The tool pages and their vendored libraries are not content-hashed
+      # either, and they are application logic rather than static decoration.
+      # Revalidate so a fixed tool actually reaches people.
+      - path: /extra-tools/*
+        name: Cache-Control
+        value: 'public, max-age=0, must-revalidate'
