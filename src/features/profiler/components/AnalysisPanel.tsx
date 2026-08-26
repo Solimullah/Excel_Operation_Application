@@ -74,7 +74,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ files }) => {
     setStats(newStats);
   }, [activeFile]);
 
-  if (!activeFile) return <div className="text-center py-10">No files available.</div>;
+  if (!activeFile) return <div className="text-center py-10 dark:text-gray-400">No files available.</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -85,13 +85,13 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ files }) => {
             <select
                 value={selectedFileId}
                 onChange={(e) => setSelectedFileId(e.target.value)}
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
                 {files.map(f => (
                     <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                 <ChevronDown className="h-4 w-4" />
             </div>
         </div>
@@ -117,36 +117,36 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ files }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.map(stat => (
-              <div key={stat.name} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div key={stat.name} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900 truncate" title={stat.name}>{stat.name}</h3>
-                      <div className="text-gray-400">
-                          {stat.type === 'number' ? <Hash className="h-5 w-5" /> : 
-                           stat.type === 'date' ? <Calendar className="h-5 w-5" /> : 
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate" title={stat.name}>{stat.name}</h3>
+                      <div className="text-gray-400 dark:text-gray-500">
+                          {stat.type === 'number' ? <Hash className="h-5 w-5" /> :
+                           stat.type === 'date' ? <Calendar className="h-5 w-5" /> :
                            <Type className="h-5 w-5" />}
                       </div>
                   </div>
-                  
+
                   <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                          <span className="text-gray-500">Data Type</span>
-                          <span className="font-medium text-gray-900 capitalize px-2 py-0.5 bg-gray-100 rounded text-xs">{stat.type}</span>
+                          <span className="text-gray-500 dark:text-gray-400">Data Type</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100 capitalize px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs">{stat.type}</span>
                       </div>
                       <div className="flex justify-between">
-                          <span className="text-gray-500">Distinct Values</span>
-                          <span className="font-medium text-gray-900">{stat.distinctCount}</span>
+                          <span className="text-gray-500 dark:text-gray-400">Distinct Values</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{stat.distinctCount}</span>
                       </div>
                       <div className="flex justify-between">
-                          <span className="text-gray-500">Missing (Null)</span>
-                          <span className={`font-medium ${stat.nullCount > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                          <span className="text-gray-500 dark:text-gray-400">Missing (Null)</span>
+                          <span className={`font-medium ${stat.nullCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
                               {stat.nullCount} ({(stat.nullCount / activeFile.data.length * 100).toFixed(1)}%)
                           </span>
                       </div>
                       {stat.type === 'number' && stat.min !== undefined && stat.max !== undefined && (
-                          <div className="pt-2 mt-2 border-t border-gray-100">
+                          <div className="pt-2 mt-2 border-t border-gray-100 dark:border-gray-800">
                              <div className="flex justify-between text-xs">
-                                 <span className="text-gray-500">Min: <span className="text-gray-900 font-medium">{stat.min}</span></span>
-                                 <span className="text-gray-500">Max: <span className="text-gray-900 font-medium">{stat.max}</span></span>
+                                 <span className="text-gray-500 dark:text-gray-400">Min: <span className="text-gray-900 dark:text-gray-100 font-medium">{stat.min}</span></span>
+                                 <span className="text-gray-500 dark:text-gray-400">Max: <span className="text-gray-900 dark:text-gray-100 font-medium">{stat.max}</span></span>
                              </div>
                           </div>
                       )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { FileUpload } from '@/features/files/components/FileUpload';
 import { DataView } from '@/features/data-view/components/DataView';
@@ -12,11 +12,25 @@ import { VlookupPanel } from '@/features/vlookup/components/VlookupPanel';
 import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction } from '@/types';
 import { readExcelFile, downloadExcelFile } from '@/lib/excel';
 
+const getInitialTheme = (): 'light' | 'dark' => {
+  const stored = localStorage.getItem('excelai-theme');
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.UPLOAD);
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('excelai-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+
   // Bridge State: Passing actions from Formula AI to Operations
   const [pendingCleaningAction, setPendingCleaningAction] = useState<{
     fileId: string;
@@ -24,10 +38,24 @@ const App: React.FC = () => {
   } | null>(null);
 
   const handleFilesSelect = async (filesToUpload: File[]) => {
+    const existingNames = new Set(files.map(f => f.name.toLowerCase()));
+    const duplicateNames = filesToUpload.filter(f => existingNames.has(f.name.toLowerCase())).map(f => f.name);
+
+    let filesToProcess = filesToUpload;
+    if (duplicateNames.length > 0) {
+      const proceed = window.confirm(
+        `The following file(s) share a name with a file already uploaded:\n\n${duplicateNames.join('\n')}\n\nAdd them anyway as separate entries?`
+      );
+      if (!proceed) {
+        filesToProcess = filesToUpload.filter(f => !duplicateNames.includes(f.name));
+        if (filesToProcess.length === 0) return;
+      }
+    }
+
     setIsProcessing(true);
     try {
       const newUploadedFiles = await Promise.all(
-        filesToUpload.map(async (file) => {
+        filesToProcess.map(async (file) => {
           const { data, columns } = await readExcelFile(file);
           return {
             id: crypto.randomUUID(),
@@ -92,6 +120,7 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+
     if (activeTab === AppTab.UPLOAD) {
       return (
         <FileUpload 
@@ -106,10 +135,10 @@ const App: React.FC = () => {
     if (files.length === 0) {
        return (
          <div className="text-center py-20">
-           <p className="text-gray-500 mb-4">No files uploaded yet.</p>
-           <button 
+           <p className="text-gray-500 dark:text-gray-400 mb-4">No files uploaded yet.</p>
+           <button
              onClick={() => setActiveTab(AppTab.UPLOAD)}
-             className="text-indigo-600 hover:text-indigo-800 font-medium"
+             className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
            >
              Go to File Manager
            </button>
@@ -141,11 +170,12 @@ const App: React.FC = () => {
     );
   };
 
+
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length}>
+    <Layout activeTab={activeTab} onTabChange={setActiveTab} fileCount={files.length} theme={theme} onToggleTheme={toggleTheme}>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-            {activeTab === AppTab.UPLOAD ? 'File Manager' : 
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {activeTab === AppTab.UPLOAD ? 'File Manager' :
              activeTab === AppTab.VIEW ? 'Data Overview' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
              activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
@@ -155,7 +185,7 @@ const App: React.FC = () => {
              activeTab === AppTab.FORMULA ? 'Formula Builder' :
              'Visualization'}
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
             {activeTab === AppTab.UPLOAD ? 'Manage your uploaded spreadsheets and data files.' :
              activeTab === AppTab.VIEW ? 'View and export your data.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :

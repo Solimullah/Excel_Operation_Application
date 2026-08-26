@@ -33,6 +33,9 @@ dist-ssr
 # stays on this machine only.
 context/project-memory.md
 
+# Project archives dropped in for comparison - never commit these
+*.zip
+
 # Test coverage output
 coverage
 

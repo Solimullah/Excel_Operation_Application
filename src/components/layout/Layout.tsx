@@ -1,15 +1,17 @@
 import React, { ReactNode } from 'react';
 import { AppTab } from '@/types';
-import { 
-  FileSpreadsheet, 
-  Search, 
-  Eraser, 
-  Calculator, 
-  BarChart, 
+import {
+  FileSpreadsheet,
+  Search,
+  Eraser,
+  Calculator,
+  BarChart,
   Upload,
   GitCompare,
   Combine,
-  Sparkles
+  Sparkles,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -17,44 +19,55 @@ interface LayoutProps {
   activeTab: AppTab;
   onTabChange: (tab: AppTab) => void;
   fileCount: number;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }
 
-const NavItem = ({ 
-  tab, 
-  active, 
-  icon: Icon, 
-  label, 
-  onClick 
-}: { 
-  tab: AppTab; 
-  active: boolean; 
-  icon: React.ElementType; 
-  label: string; 
-  onClick: (t: AppTab) => void; 
+const NavItem = ({
+  tab,
+  active,
+  icon: Icon,
+  label,
+  onClick
+}: {
+  tab: AppTab;
+  active: boolean;
+  icon: React.ElementType;
+  label: string;
+  onClick: (t: AppTab) => void;
 }) => (
   <button
     onClick={() => onClick(tab)}
     className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-all ${
-      active 
-        ? 'bg-indigo-50 text-indigo-700' 
-        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+      active
+        ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
     }`}
   >
-    <Icon className={`h-5 w-5 ${active ? 'text-indigo-600' : 'text-gray-400'}`} />
+    <Icon className={`h-5 w-5 ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}`} />
     <span>{label}</span>
   </button>
 );
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, fileCount }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, fileCount, theme, onToggleTheme }) => {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-10">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <FileSpreadsheet className="h-8 w-8 text-indigo-600" />
-          <span className="ml-2 text-xl font-bold text-gray-900">ExcelAI</span>
+      <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-shrink-0 fixed h-full z-10">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center">
+            <FileSpreadsheet className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-gray-100">ExcelAI</span>
+          </div>
+          <button
+            onClick={onToggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
         </div>
-        
+
         <div className="p-4 space-y-1">
           <NavItem 
             tab={AppTab.UPLOAD} 
@@ -64,7 +77,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             onClick={onTabChange} 
           />
           <div className="pt-4 pb-2">
-            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Workspace</p>
+            <p className="px-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Workspace</p>
           </div>
           <NavItem 
             tab={AppTab.CLEANING} 
@@ -115,22 +128,23 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             label="Formula AI" 
             onClick={onTabChange} 
           />
-          <NavItem 
-            tab={AppTab.VISUALIZE} 
-            active={activeTab === AppTab.VISUALIZE} 
-            icon={BarChart} 
-            label="Visualizations" 
-            onClick={onTabChange} 
+          <NavItem
+            tab={AppTab.VISUALIZE}
+            active={activeTab === AppTab.VISUALIZE}
+            icon={BarChart}
+            label="Visualizations"
+            onClick={onTabChange}
           />
+
         </div>
 
-        <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 bg-gray-50">
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {fileCount} Active File{fileCount !== 1 ? 's' : ''}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   ExcelAI Master
                 </p>
               </div>

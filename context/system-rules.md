@@ -16,9 +16,12 @@ contact lists, lead exports, commercial records — and today they never leave t
   anywhere in the codebase. Keep it that way.
 - **Never add analytics or error telemetry** that could carry column names, cell values or
   file names off the machine.
-- **Never introduce persistence** — `localStorage`, `sessionStorage`, IndexedDB, cookies,
-  the File System Access API. Nothing is stored today and a reload clears everything. That
-  is a privacy property, not a bug.
+- **`localStorage` holds exactly one key: `excelai-theme`.** That is the light/dark
+  preference and nothing else. Never store spreadsheet data, column names, file names or
+  anything derived from a loaded workbook — not in `localStorage`, `sessionStorage`,
+  IndexedDB, cookies or the File System Access API. A reload must still clear every row
+  the user loaded. ESLint enforces this: `App.tsx` is the only file permitted to touch
+  storage at all.
 - The Data Profiler says so to the user in as many words: *"All statistics are calculated
   locally in your browser."* Do not make that sentence false.
 

@@ -125,6 +125,14 @@ export default tseslint.config(
     },
   },
 
+  // The theme preference is the ONE thing this app persists, and App.tsx is the
+  // only place allowed to. Spreadsheet data must never be written to storage -
+  // the global rule above still guards every other file. See system-rules.md §1.
+  {
+    files: ['src/app/App.tsx'],
+    rules: { 'no-restricted-globals': 'off' },
+  },
+
   // The excel wrapper is the one place allowed to import xlsx directly.
   {
     files: ['src/lib/excel/**/*.ts'],

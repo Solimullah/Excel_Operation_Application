@@ -21,7 +21,7 @@ export const DataView: React.FC<DataViewProps> = ({ files, onDownload }) => {
 
   if (!activeFile) {
     return (
-      <div className="text-center py-20 text-gray-500">
+      <div className="text-center py-20 text-gray-500 dark:text-gray-400">
         No files uploaded. Please go to the File Manager.
       </div>
     );
@@ -39,49 +39,49 @@ export const DataView: React.FC<DataViewProps> = ({ files, onDownload }) => {
                 <select
                     value={selectedFileId}
                     onChange={(e) => setSelectedFileId(e.target.value)}
-                    className="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="appearance-none pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     {files.map(f => (
                         <option key={f.id} value={f.id}>{f.name}</option>
                     ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                     <ChevronDown className="h-4 w-4" />
                 </div>
             </div>
         </div>
 
         <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500 mr-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
                 Showing top 100 of {activeFile.data.length} rows
             </span>
             <ExportMenu onExport={(format) => onDownload(activeFile.id, format)} />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 {activeFile.columns.map((col, idx) => (
                   <th
                     key={idx}
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap"
                   >
                     {col}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
               {displayData.map((row, rowIdx) => (
-                <tr key={rowIdx} className="hover:bg-gray-50">
+                <tr key={rowIdx} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   {activeFile.columns.map((col, colIdx) => (
                     <td
                       key={`${rowIdx}-${colIdx}`}
-                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
                     >
                       {row[col]?.toString() || ''}
                     </td>

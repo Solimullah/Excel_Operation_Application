@@ -67,7 +67,7 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
     }
   };
 
-  if (!activeFile) return <div className="text-center py-10">No files available.</div>;
+  if (!activeFile) return <div className="text-center py-10 dark:text-gray-400">No files available.</div>;
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
@@ -77,69 +77,69 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
             <select
                 value={selectedFileId}
                 onChange={(e) => setSelectedFileId(e.target.value)}
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
                 {files.map(f => (
                     <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                 <ChevronDown className="h-4 w-4" />
             </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <div className="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
            <div className="flex items-center">
-             <Calculator className="h-5 w-5 text-indigo-600 mr-2" />
-             <h3 className="font-bold text-gray-900">Formula Templates</h3>
+             <Calculator className="h-5 w-5 text-indigo-600 dark:text-indigo-400 mr-2" />
+             <h3 className="font-bold text-gray-900 dark:text-gray-100">Formula Templates</h3>
            </div>
-           <div className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">Local Builder</div>
+           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">Local Builder</div>
         </div>
-        
+
         <div className="p-6 space-y-6">
             <div>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     Select a common formula pattern and map it to your columns in <strong>{activeFile.name}</strong>.
                 </p>
                 <form onSubmit={handleGenerate} className="space-y-4">
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Template</label>
-                            <select 
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Template</label>
+                            <select
                                 value={selectedTemplate.id}
                                 onChange={(e) => {
                                     const template = TEMPLATES.find(t => t.id === e.target.value);
                                     if(template) setSelectedTemplate(template);
                                 }}
-                                className="block w-full rounded-md border-gray-300 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                                className="block w-full rounded-md border-gray-300 dark:border-gray-700 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             >
                                 {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
-                            <p className="text-xs text-gray-500 mt-1">{selectedTemplate.desc}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{selectedTemplate.desc}</p>
                         </div>
-                        
+
                         <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Target Column 1</label>
-                                <select 
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Column 1</label>
+                                <select
                                     value={col1}
                                     onChange={(e) => setCol1(e.target.value)}
-                                    className="block w-full rounded-md border-gray-300 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-sm"
+                                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                 >
                                     {activeFile.columns.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
-                            
+
                             {selectedTemplate.template.includes('{col2}') && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Target Column 2</label>
-                                    <select 
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Column 2</label>
+                                    <select
                                         value={col2}
                                         onChange={(e) => setCol2(e.target.value)}
-                                        className="block w-full rounded-md border-gray-300 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-sm"
+                                        className="block w-full rounded-md border-gray-300 dark:border-gray-700 border p-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                     >
                                         {activeFile.columns.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -148,7 +148,7 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
                         </div>
                     </div>
 
-                    <div className="flex justify-end pt-2 border-t border-gray-100">
+                    <div className="flex justify-end pt-2 border-t border-gray-100 dark:border-gray-800">
                         <Button type="submit">
                             Construct Formula
                         </Button>
@@ -172,14 +172,14 @@ export const FormulaPanel: React.FC<FormulaPanelProps> = ({ files, onAddToPipeli
                         </button>
                     </div>
 
-                    <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="bg-indigo-50 dark:bg-indigo-500/10 p-4 rounded-lg border border-indigo-100 dark:border-indigo-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex-1 w-full">
-                            <label className="block text-xs font-semibold text-indigo-800 mb-1">Destination Column</label>
-                            <input 
+                            <label className="block text-xs font-semibold text-indigo-800 dark:text-indigo-300 mb-1">Destination Column</label>
+                            <input
                                 type="text"
                                 value={targetColumnName}
                                 onChange={(e) => setTargetColumnName(e.target.value)}
-                                className="block w-full rounded-md border-indigo-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2 text-sm"
+                                className="block w-full rounded-md border-indigo-200 dark:border-indigo-500/30 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 border p-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                             />
                         </div>
                         <Button 

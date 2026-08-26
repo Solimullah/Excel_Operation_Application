@@ -32,7 +32,7 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ files }) => {
       }
   }, [activeFile, xAxis, yAxis]);
 
-  if (!activeFile) return <div className="text-center py-10">No files available.</div>;
+  if (!activeFile) return <div className="text-center py-10 dark:text-gray-400">No files available.</div>;
 
   // Prepare data (limit to top 20 for readability in charts)
   const chartData = activeFile.data.slice(0, 20).map(row => ({
@@ -48,61 +48,61 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ files }) => {
             <select
                 value={selectedFileId}
                 onChange={(e) => setSelectedFileId(e.target.value)}
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="appearance-none w-full pl-4 pr-10 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
                 {files.map(f => (
                     <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                 <ChevronDown className="h-4 w-4" />
             </div>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">X Axis (Category)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">X Axis (Category)</label>
             <select
               value={xAxis}
               onChange={(e) => setXAxis(e.target.value)}
-              className="block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="block w-full rounded-md border-gray-300 dark:border-gray-700 border p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               {activeFile.columns.map(col => <option key={col} value={col}>{col}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Y Axis (Value)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Y Axis (Value)</label>
             <select
               value={yAxis}
               onChange={(e) => setYAxis(e.target.value)}
-              className="block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="block w-full rounded-md border-gray-300 dark:border-gray-700 border p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               {activeFile.columns.map(col => <option key={col} value={col}>{col}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Chart Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chart Type</label>
              <div className="flex rounded-md shadow-sm" role="group">
                 <button
                     type="button"
                     onClick={() => setChartType('bar')}
-                    className={`px-4 py-2 text-sm font-medium border border-gray-300 rounded-l-lg hover:bg-gray-100 ${chartType === 'bar' ? 'bg-indigo-50 text-indigo-700 z-10 border-indigo-500' : 'bg-white text-gray-700'}`}
+                    className={`px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-l-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${chartType === 'bar' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 z-10 border-indigo-500' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                 >
                     Bar
                 </button>
                 <button
                     type="button"
                     onClick={() => setChartType('line')}
-                    className={`px-4 py-2 text-sm font-medium border-t border-b border-gray-300 hover:bg-gray-100 ${chartType === 'line' ? 'bg-indigo-50 text-indigo-700 z-10 border-indigo-500' : 'bg-white text-gray-700'}`}
+                    className={`px-4 py-2 text-sm font-medium border-t border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 ${chartType === 'line' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 z-10 border-indigo-500' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                 >
                     Line
                 </button>
                 <button
                     type="button"
                     onClick={() => setChartType('pie')}
-                    className={`px-4 py-2 text-sm font-medium border border-gray-300 rounded-r-lg hover:bg-gray-100 ${chartType === 'pie' ? 'bg-indigo-50 text-indigo-700 z-10 border-indigo-500' : 'bg-white text-gray-700'}`}
+                    className={`px-4 py-2 text-sm font-medium border border-gray-300 dark:border-gray-700 rounded-r-lg hover:bg-gray-100 dark:hover:bg-gray-700 ${chartType === 'pie' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 z-10 border-indigo-500' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                 >
                     Pie
                 </button>
@@ -110,7 +110,7 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ files }) => {
           </div>
         </div>
 
-        <div className="h-[400px] w-full bg-gray-50 rounded-lg p-4 border border-gray-100 flex items-center justify-center">
+        <div className="h-[400px] w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
                 {chartType === 'bar' ? (
                     <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -152,7 +152,7 @@ export const ChartPanel: React.FC<ChartPanelProps> = ({ files }) => {
                 )}
             </ResponsiveContainer>
         </div>
-        <p className="text-center text-xs text-gray-400 mt-2">Displaying first 20 records</p>
+        <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">Displaying first 20 records</p>
       </div>
     </div>
   );
