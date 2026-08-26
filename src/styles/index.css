@@ -1,59 +1,70 @@
 /*
- * Base stylesheet.
+ * Sales Support Workbench - base stylesheet.
  *
- * Tailwind is currently loaded from cdn.tailwindcss.com via a <script> tag in
- * index.html, so there is no build step, no tailwind.config.js and no @tailwind
- * directives here. Only stock Tailwind utilities work in JSX; a class you invent
- * will silently do nothing.
- *
- * When Tailwind moves into the build (which it should, before any brand-palette
- * work — see context/project-memory.md §4), this file becomes:
- *
- *   @tailwind base;
- *   @tailwind components;
- *   @tailwind utilities;
- *
- * and the CDN <script> comes out of index.html.
+ * Tailwind is compiled at build time from tailwind.config.js, which carries the
+ * eGENTIC palette and the screen-translated type scale. There is no CDN script:
+ * only classes that exist in the config will work, and an invented one fails
+ * loudly in review rather than silently doing nothing.
  */
 
-:root {
-  color-scheme: light;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-html,
-body,
-#root {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /*
- * Tabular figures wherever digits are meant to line up — row counts, statistics,
- * min/max values. Applied via the `tabular-nums` utility in JSX.
+ * Roboto, self-hosted. One variable file covers the whole 100-900 range, so the
+ * guide's Black (900) / Bold (700) / Regular (400) hierarchy costs 31 KB in
+ * total and makes no third-party request.
  */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/roboto-variable.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Keep a visible focus ring for keyboard users without showing it on click. */
-:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-cyan-light text-brand-black antialiased;
+    font-family: theme('fontFamily.sans');
+  }
+
+  html.dark body {
+    @apply bg-brand-black text-cyan-light;
+  }
+
+  /* Digits that line up in tables and statistics. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Keyboard users keep a visible ring; mouse users do not. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-light ring-offset-2;
+  }
+
+  html.dark :focus-visible {
+    @apply ring-offset-brand-black;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
