@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { FileUpload } from '@/features/files/components/FileUpload';
 import { DataView } from '@/features/data-view/components/DataView';
-import { AnalysisPanel } from '@/features/profiler/components/AnalysisPanel';
 import { CleaningPanel } from '@/features/cleaning/components/CleaningPanel';
 import { FormulaPanel } from '@/features/formula/components/FormulaPanel';
-import { ChartPanel } from '@/features/charts/components/ChartPanel';
 import { ComparePanel } from '@/features/compare/components/ComparePanel';
 import { MergePanel } from '@/features/merge-split/components/MergePanel';
-import { VlookupPanel } from '@/features/vlookup/components/VlookupPanel';
 import { ExtraToolFrame } from '@/components/ui/ExtraToolFrame';
 import { AppTab, UploadedFile, ExcelRow, ExportFormat, CleaningAction, EXTRA_TOOLS } from '@/types';
 import { readExcelFile, downloadExcelFile } from '@/lib/excel';
@@ -167,10 +164,7 @@ const App: React.FC = () => {
         {activeTab === AppTab.VIEW && <DataView files={files} onDownload={handleDownload} />}
         {activeTab === AppTab.COMPARE && <ComparePanel files={files} />}
         {activeTab === AppTab.MERGE && <MergePanel files={files} />}
-        {activeTab === AppTab.VLOOKUP && <VlookupPanel files={files} onUpdateFile={handleFileUpdate} />}
-        {activeTab === AppTab.ANALYSIS && <AnalysisPanel files={files} />}
         {activeTab === AppTab.FORMULA && <FormulaPanel files={files} onAddToPipeline={handleAddToPipeline} />}
-        {activeTab === AppTab.VISUALIZE && <ChartPanel files={files} />}
       </>
     );
   };
@@ -186,11 +180,8 @@ const App: React.FC = () => {
              activeTab === AppTab.VIEW ? 'Data Overview' :
              activeTab === AppTab.COMPARE ? 'Compare Files' :
              activeTab === AppTab.MERGE ? 'Merge & Split Tool' :
-             activeTab === AppTab.VLOOKUP ? 'VLOOKUP Tool' :
-             activeTab === AppTab.ANALYSIS ? 'Data Profiler' :
              activeTab === AppTab.CLEANING ? 'Operations & Cleaning' :
-             activeTab === AppTab.FORMULA ? 'Formula Builder' :
-             'Visualization'}
+             'Formula Builder'}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">
             {activeExtraTool ? activeExtraTool.description :
@@ -198,11 +189,8 @@ const App: React.FC = () => {
              activeTab === AppTab.VIEW ? 'View and export your data.' :
              activeTab === AppTab.COMPARE ? 'Identify differences between two datasets.' :
              activeTab === AppTab.MERGE ? 'Combine multiple datasets or split one into many.' :
-             activeTab === AppTab.VLOOKUP ? 'Perform VLOOKUP operations between two files.' :
-             activeTab === AppTab.ANALYSIS ? 'Generate instant statistical profiles for your data locally.' :
              activeTab === AppTab.CLEANING ? 'Clean, modify, and extract data.' :
-             activeTab === AppTab.FORMULA ? 'Use templates to build complex custom formulas.' :
-             'Create charts to visualize trends.'}
+             'Use templates to build complex custom formulas.'}
         </p>
       </div>
       {renderContent()}

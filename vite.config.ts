@@ -34,25 +34,21 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: 'hidden',
-      // Two dependencies dominate the bundle: xlsx (~430 kB) and recharts with
-      // its d3 tree (~350 kB). Splitting them means a change to application
-      // code no longer invalidates the vendor chunks in users' caches.
+      // xlsx dominates the bundle (~430 kB). Splitting it out means a change to
+      // application code no longer invalidates the vendor chunks in users' caches.
       rollupOptions: {
         output: {
           // Resolved by module path rather than package name: the array form
           // produces an empty vendor-react chunk, because React arrives through
           // transitive paths that a bare "react" entry does not match.
           //
-          // Order matters — "lucide-react" and "recharts" would both be caught
-          // by a naive "react" test, so they are claimed first.
+          // Order matters — "lucide-react" would be caught by a naive "react"
+          // test, so it is claimed first.
           manualChunks(id: string) {
             if (!id.includes('node_modules')) return undefined;
 
             if (id.includes('/xlsx/')) return 'vendor-xlsx';
             if (id.includes('/lucide-react/')) return 'vendor-icons';
-            if (id.includes('/recharts/') || id.includes('/d3-') || id.includes('/victory-')) {
-              return 'vendor-charts';
-            }
             if (
               id.includes('/react/') ||
               id.includes('/react-dom/') ||

@@ -2,14 +2,11 @@ import React, { ReactNode } from 'react';
 import { AppTab, EXTRA_TOOLS } from '@/types';
 import {
   FileSpreadsheet,
-  Search,
   Eraser,
   Calculator,
-  BarChart,
   Upload,
   GitCompare,
   Combine,
-  Sparkles,
   Hash,
   Scissors,
   Layers,
@@ -113,32 +110,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
             onClick={onTabChange} 
           />
           <NavItem 
-            tab={AppTab.VLOOKUP} 
-            active={activeTab === AppTab.VLOOKUP} 
-            icon={Search} 
-            label="VLOOKUP AI" 
-            onClick={onTabChange} 
-          />
-          <NavItem 
-            tab={AppTab.ANALYSIS} 
-            active={activeTab === AppTab.ANALYSIS} 
-            icon={Sparkles} 
-            label="Smart Insights" 
-            onClick={onTabChange} 
-          />
-          <NavItem 
             tab={AppTab.FORMULA} 
             active={activeTab === AppTab.FORMULA} 
             icon={Calculator} 
             label="Formula AI" 
             onClick={onTabChange} 
-          />
-          <NavItem
-            tab={AppTab.VISUALIZE}
-            active={activeTab === AppTab.VISUALIZE}
-            icon={BarChart}
-            label="Visualizations"
-            onClick={onTabChange}
           />
 
           <div className="pt-4 pb-2">
